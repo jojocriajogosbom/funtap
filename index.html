@@ -19,13 +19,10 @@
 <style>
 
 :root{
-
-  --bg:#0d0d1a;--card:#13132a;--btn1:#7c3aed;--btn2:#a855f7;--btn3:#c084fc;
-
-  --text:#f5f0ff;--sub:#8b7ab8;--gold:#fbbf24;--green:#10b981;
-
-  --glow:rgba(124,58,237,.5);--glow2:rgba(168,85,247,.3);
-
+  --bg:#07071a;--card:#0f0f2a;--btn1:#8b5cf6;--btn2:#a855f7;--btn3:#e879f9;
+  --text:#f8f0ff;--sub:#b49dd8;--gold:#fbbf24;--green:#10b981;
+  --glow:rgba(139,92,246,.7);--glow2:rgba(232,121,249,.45);
+  --accent1:#ec4899;--accent2:#06b6d4;--accent3:#f59e0b;
 }
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -82,7 +79,7 @@ header{width:100%;padding:.7rem 1rem .2rem;display:flex;justify-content:space-be
 
 .hrow{display:flex;gap:.3rem;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
 
-.hchip{font-family:'Fredoka One',cursive;font-size:.72rem;background:rgba(124,58,237,.25);color:var(--btn3);padding:.15rem .55rem;border-radius:16px;border:1px solid rgba(168,85,247,.3);white-space:nowrap;}
+.hchip{font-family:'Fredoka One',cursive;font-size:.72rem;background:linear-gradient(135deg,rgba(124,58,237,.3),rgba(168,85,247,.2));color:var(--btn3);padding:.15rem .6rem;border-radius:16px;border:1px solid rgba(168,85,247,.4);white-space:nowrap;box-shadow:0 2px 8px rgba(124,58,237,.15),inset 0 1px 0 rgba(255,255,255,.05);}
 
 
 
@@ -106,7 +103,7 @@ header{width:100%;padding:.7rem 1rem .2rem;display:flex;justify-content:space-be
 
 #scoreWrap{text-align:center;position:relative;z-index:10;margin:-.1rem 0;}
 
-#score{font-family:'Fredoka One',cursive;font-size:clamp(3rem,12vw,5.5rem);background:linear-gradient(135deg,#fff,var(--btn3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;filter:drop-shadow(0 4px 20px var(--glow));}
+#score{font-family:'Fredoka One',cursive;font-size:clamp(3rem,12vw,5.5rem);background:linear-gradient(135deg,#fff 0%,#c084fc 40%,#ec4899 70%,#fbbf24 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;filter:drop-shadow(0 4px 30px var(--glow)) drop-shadow(0 0 60px rgba(236,72,153,.3));}
 
 #scoreSub{font-size:.7rem;color:var(--sub);letter-spacing:2px;margin-top:.1rem;transition:color 3s;}
 
@@ -133,22 +130,18 @@ header{width:100%;padding:.7rem 1rem .2rem;display:flex;justify-content:space-be
 #btnWrap{position:relative;z-index:10;}
 
 #tapBtn{
-
   width:min(60vw,255px);height:min(60vw,255px);border-radius:50%;border:none;cursor:pointer;
-
-  background:radial-gradient(circle at 35% 28%,var(--btn3),var(--btn1));
-
-  box-shadow:0 0 0 3px rgba(168,85,247,.3),0 0 0 8px rgba(124,58,237,.15),0 0 50px var(--glow),0 8px 30px rgba(0,0,0,.4);
-
+  background:conic-gradient(from var(--btn-angle,0deg),#7c3aed,#a855f7,#ec4899,#f59e0b,#7c3aed);
+  box-shadow:0 0 0 4px rgba(168,85,247,.35),0 0 0 10px rgba(124,58,237,.12),
+             0 0 60px var(--glow),0 0 120px rgba(124,58,237,.15),0 10px 40px rgba(0,0,0,.5);
   font-family:'Fredoka One',cursive;font-size:1.4rem;color:#fff;letter-spacing:2px;
-
   position:relative;overflow:hidden;outline:none;
-
-  transition:transform .08s,box-shadow .3s,background 4s;
-
+  animation:btnRotate 4s linear infinite;
+  transition:transform .08s,box-shadow .3s;
   -webkit-tap-highlight-color:transparent;
-
 }
+@property --btn-angle{syntax:'<angle>';initial-value:0deg;inherits:false;}
+@keyframes btnRotate{to{--btn-angle:360deg;}}
 
 #tapBtn::before{content:'';position:absolute;top:10%;left:20%;width:40%;height:18%;background:rgba(255,255,255,.25);border-radius:50%;filter:blur(8px);pointer-events:none;}
 
@@ -178,11 +171,11 @@ header{width:100%;padding:.7rem 1rem .2rem;display:flex;justify-content:space-be
 
 #upgradesWrap::-webkit-scrollbar{display:none;}
 
-.upg{min-width:96px;background:rgba(19,19,42,.8);border:1.5px solid rgba(124,58,237,.3);border-radius:14px;padding:.4rem .45rem;cursor:pointer;transition:transform .12s,box-shadow .15s,border-color .2s;flex-shrink:0;text-align:center;backdrop-filter:blur(10px);}
+.upg{min-width:96px;background:linear-gradient(135deg,rgba(19,19,42,.9),rgba(30,20,55,.8));border:1.5px solid rgba(124,58,237,.35);border-radius:14px;padding:.4rem .45rem;cursor:pointer;transition:transform .12s,box-shadow .2s,border-color .2s;flex-shrink:0;text-align:center;backdrop-filter:blur(12px);box-shadow:0 2px 12px rgba(124,58,237,.1),inset 0 1px 0 rgba(255,255,255,.05);}
 
 .upg:active{transform:scale(.92);}
 
-.upg:hover{border-color:rgba(168,85,247,.6);box-shadow:0 4px 20px var(--glow2);}
+.upg:hover{border-color:rgba(168,85,247,.7);box-shadow:0 4px 24px var(--glow2),0 0 0 1px rgba(168,85,247,.2),inset 0 1px 0 rgba(255,255,255,.08);transform:translateY(-2px) scale(1.02)!important;}
 
 .upg.cantafford{opacity:.32;cursor:default;}
 
@@ -731,22 +724,75 @@ const SFX={
   drainClick:()=>{tone(300,.08,'sawtooth',.055);tone(150,.1,'square',.04,.05);},
 
   null666:()=>{
-
-    // "oi... vc passou dos limites" — som especial do NULL fase 666
-
     [55,44,33,22].forEach((f,i)=>tone(f,2,'sawtooth',.18,i*.15,Math.random()*50-25));
-
     noise(1.5,.25);setTimeout(()=>{noise(1,.2);[110,88,66].forEach((f,i)=>tone(f,1,'square',.1,i*.1));},800);
-
     setTimeout(()=>SFX.stab(),2000);
-
   },
-
+  // NOVOS SONS
+  clickPop:()=>{tone(800,.03,'sine',.18);tone(1200,.025,'sine',.14,.025);tone(1600,.02,'sine',.1,.045);},
+  clickJuicy:()=>{tone(600,.04,'sine',.2);tone(900,.035,'sine',.17,.03);tone(1300,.03,'sine',.13,.055);noise(.02,.04);},
+  clickCrit:()=>{[800,1000,1200,1500,2000].forEach((f,i)=>tone(f,.06,'sine',.2,i*.02));noise(.05,.08);},
+  buyUpgrade:()=>{[440,554,659,784,988,1175].forEach((f,i)=>tone(f,.1,'sine',.16,i*.038));},
+  buySpecial:()=>{[523,659,784,1047,1319,1568].forEach((f,i)=>tone(f,.12,'sine',.2,i*.045));noise(.1,.05);},
+  nullWhisper:()=>{[90,120,160,200].forEach((f,i)=>tone(f,.8,'sine',.04,i*.08,Math.random()*90-45));},
+  nullStep:()=>{tone(60,.3,'sawtooth',.09);tone(80,.2,'square',.06,.1);noise(.15,.04);},
+  nullBreath:()=>{[200,180,160,140,120].forEach((f,i)=>tone(f,.25,'sine',.03,i*.07,-60+Math.random()*120));},
+  terdJingle:()=>{[523,659,784,1047,784,659,523].forEach((f,i)=>tone(f,.08,'sine',.12,i*.05));},
+  qwertType:()=>{tone(800+Math.random()*400,.02,'square',.04);},
+  err404:()=>{[220,200,180,160,140].forEach((f,i)=>tone(f,.15,'sawtooth',.07,i*.04));noise(.1,.06);},
+  bgHum:()=>{// hum ambiente suave
+    try{const a=getAC(),o=a.createOscillator(),g=a.createGain();
+      o.connect(g);g.connect(a.destination);o.type='sine';
+      o.frequency.setValueAtTime(60,a.currentTime);
+      g.gain.setValueAtTime(.008,a.currentTime);
+      g.gain.linearRampToValueAtTime(.015,a.currentTime+2);
+      g.gain.linearRampToValueAtTime(0,a.currentTime+8);
+      o.start();o.stop(a.currentTime+8);}catch(e){}
+  },
 };
 
+// ── EFEITOS VISUAIS DE UPGRADE ──
+let vfxActive={};
+function applyVFX(fx){
+  if(vfxActive[fx])return;
+  vfxActive[fx]=true;
+  SFX.buySpecial();
+  const btn=document.getElementById('tapBtn');
+  if(fx==='particles'){
+    // mais partículas ao clicar — já tratado na quantidade
+    showToast('✨ Partículas ativadas!');
+  }
+  if(fx==='neon'){
+    btn.style.boxShadow='0 0 0 4px rgba(232,121,249,.4),0 0 80px rgba(139,92,246,.8),0 0 150px rgba(232,121,249,.4)';
+    showToast('🌈 Rastro Neon!');
+  }
+  if(fx==='explode'){showToast('💥 Explosão ao clicar!');}
+  if(fx==='matrix'){
+    document.getElementById('bgCanvas').style.filter='hue-rotate(120deg) saturate(2)';
+    showToast('💚 Modo Matrix!');
+  }
+  if(fx==='fire'){
+    btn.style.background='radial-gradient(circle at 35% 28%,#fde68a,#f97316,#dc2626)';
+    showToast('🔥 Modo Fogo!');
+  }
+  if(fx==='null_skin'){
+    btn.style.background='radial-gradient(circle at 35% 28%,#1a0000,#000)';
+    btn.style.boxShadow='0 0 30px #ff000033';
+    document.getElementById('tapBtnLabel').style.color='#ff0000';
+    showToast('👁️ NULL Skin ativada...');
+    setTimeout(()=>showNullMsg('você me escolheu.',2000),2000);
+  }
+}
 
-
-// ══════════════════════════════════════════════════════
+// ── MÚSICA DE FUNDO (hum ambiente) ──
+let bgMusicOn=false,bgMusicInterval=null;
+function startBGMusic(){
+  if(bgMusicOn)return;bgMusicOn=true;
+  bgMusicInterval=setInterval(()=>{
+    if(horrorLevel<3)SFX.bgHum();
+  },8000);
+}
+setTimeout(()=>startBGMusic(),5000);
 
 // STATE
 
@@ -918,6 +964,36 @@ const UPGRADES=[
 
   {id:'m6',name:'Infinito',icon:'∞',cost:9e6,val:9,type:'mult',max:4},
 
+  // UPGRADES NOVOS — NOMES LOUCOS
+  {id:'f9',name:'Dedo de Deus',icon:'🖐️',cost:2e8,val:250000,type:'click',max:3},
+  {id:'f10',name:'BIG BANG TAP',icon:'💫',cost:2e9,val:2e6,type:'click',max:2},
+  {id:'f11',name:'Tap Quântico',icon:'🌌',cost:5e7,val:80000,type:'click',max:4},
+  {id:'f12',name:'Hiper Velocidade',icon:'🔆',cost:8e6,val:20000,type:'click',max:5},
+  {id:'a8',name:'Exército de Robôs',icon:'🤖',cost:2e7,val:120000,type:'auto',max:4},
+  {id:'a9',name:'Fábrica do Caos',icon:'🏗️',cost:1e8,val:600000,type:'auto',max:3},
+  {id:'a10',name:'IA Louca x10',icon:'🧠',cost:5e8,val:3e6,type:'auto',max:2},
+  {id:'a11',name:'Clonador',icon:'🧬',cost:3e6,val:15000,type:'auto',max:6},
+  {id:'m7',name:'ULTRA COMBO',icon:'🌪️',cost:5e7,val:15,type:'mult',max:4},
+  {id:'m8',name:'Modo Deus',icon:'⚡',cost:3e8,val:50,type:'mult',max:3},
+  {id:'m9',name:'NULL POWER',icon:'👁️',cost:1e9,val:99,type:'mult',max:2},
+  {id:'v1',name:'Partículas+',icon:'✨',cost:5000,val:0,type:'visual',max:1,fx:'particles'},
+  {id:'v2',name:'Rastro Neon',icon:'🌈',cost:20000,val:0,type:'visual',max:1,fx:'neon'},
+  {id:'v3',name:'Explosão',icon:'💥',cost:50000,val:0,type:'visual',max:1,fx:'explode'},
+  {id:'v4',name:'Matrix',icon:'💚',cost:200000,val:0,type:'visual',max:1,fx:'matrix'},
+  // NOMES LOUCOS EXTRAS
+  {id:'f13',name:'Rajada',icon:'💨',cost:3e8,val:300000,type:'click',max:3},
+  {id:'f14',name:'Karatê',icon:'🥋',cost:1e9,val:1e6,type:'click',max:2},
+  {id:'f15',name:'Dragão',icon:'🐉',cost:5e9,val:5e6,type:'click',max:2},
+  {id:'f16',name:'Big Bang',icon:'💥',cost:2e10,val:20e6,type:'click',max:1},
+  {id:'f17',name:'Deus do Tap',icon:'🙏',cost:1e11,val:100e6,type:'click',max:1},
+  {id:'a12',name:'Universo',icon:'🌌',cost:5e7,val:150000,type:'auto',max:3},
+  {id:'a13',name:'Tempo',icon:'⏰',cost:5e8,val:3e6,type:'auto',max:2},
+  {id:'a14',name:'Glitch Bot',icon:'📺',cost:2e9,val:12e6,type:'auto',max:2},
+  {id:'a15',name:'NULL Bot',icon:'👁️',cost:1e10,val:50e6,type:'auto',max:1},
+  {id:'m10',name:'GIGA',icon:'💎',cost:5e9,val:150,type:'mult',max:2},
+  {id:'m11',name:'NULL×',icon:'☠️',cost:5e10,val:500,type:'mult',max:1},
+  {id:'v5',name:'Fogo',icon:'🔥',cost:500000,val:0,type:'visual',max:1,fx:'fire'},
+  {id:'v6',name:'NULL Skin',icon:'👁️',cost:2e6,val:0,type:'visual',max:1,fx:'null_skin'},
 ];
 
 function upgCost(u){return Math.floor(u.cost*Math.pow(1.2,upgLevels[u.id]||0));}
@@ -1252,7 +1328,11 @@ function tap(e){
 
   // SOUND
 
-  if(horrorLevel<2)comboCount>12?SFX.clickBig():SFX.click();
+  if(horrorLevel<2){
+    if(comboCount>20)SFX.clickCrit();
+    else if(comboCount>10)SFX.clickJuicy();
+    else SFX.clickPop();
+  }
 
   else if(horrorLevel<5)SFX.drainClick();
 
@@ -2700,10 +2780,10 @@ function openADM(){
   </div>
   <div style="font-family:monospace;font-size:.5rem;color:#ffaa00;letter-spacing:2px;margin-top:.2rem;">── ESCURIDÃO & LUZ ──</div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.15rem;">
-    <button onclick="startDarkness(1);showToast('🌑 Sombra!')" style="${ab('x')}">🌑 Sombra</button>
-    <button onclick="startDarkness(2);showToast('🌑 Escuro!')" style="${ab('x')}">🌑 Escuro</button>
-    <button onclick="startDarkness(3);showToast('🌑 Quase invisível!')" style="${ab('r')}">⬛ Invisível</button>
-    <button onclick="endDarkness();showToast('☀️ Claro!')" style="${ab('g')}">☀️ Clarear</button>
+    <button onclick="showToast('🌑 Sombra!')" style="${ab('x')}">🌑 Sombra</button>
+    <button onclick="showToast('🌑 Escuro!')" style="${ab('x')}">🌑 Escuro</button>
+    <button onclick="showToast('🌑 Quase invisível!')" style="${ab('r')}">⬛ Invisível</button>
+    <button onclick="showToast('☀️ Claro!')" style="${ab('g')}">☀️ Clarear</button>
     <button onclick="activateLight('lanterna');showToast('🔦 Luz!')" style="${ab('o')}">🔦 Luz</button>
     <button onclick="activateLight('fogueira');showToast('🔥 Fogueira!')" style="${ab('o')}">🔥 Fogueira</button>
     <button onclick="lightItems={lanterna:5,lantAvancada:5,luzAuto:3,luzAnti:3,fogueira:3};updateLightHUD();showToast('Todas luzes!')" style="${ab('o')}">💡 Dar luzes</button>
@@ -4545,34 +4625,16 @@ function lightOff(){
 
 function applyDarknessVisual(){
   if(lightOn){
-    darkEl.style.opacity=(darknessLevel*.12).toString();
+    darkEl.style.opacity='0';
     return;
   }
   const opacities=[0,.35,.65,.88];
-  darkEl.style.opacity=(opacities[darknessLevel]||0).toString();
-}
-
-function startDarkness(level=1){
-  darknessLevel=Math.max(darknessLevel,level);
-  darkActive=true;
-  applyDarknessVisual();
-  updateLightHUD();
-  if(level===1)showSysMsg('A tela escureceu…',1800);
-  if(level>=2)showMsg('Fica no escuro.',2000);
-  if(level>=3){showMsg('Você não consegue ver.',2200);SFX.eerie();}
-  // entidades ficam mais ativas no escuro
-  if(level>=2&&nullStage===0&&Math.random()<.4)setTimeout(()=>nullPhase1(),5000);
-  if(level>=2)setTimeout(()=>startQWERT(),3000);
-  // TERD faz luz falsa
-  if(level>=1&&Math.random()<.35)setTimeout(()=>terdFakeLightAd(),6000);
-}
-
-function endDarkness(){
-  darknessLevel=0;darkActive=false;darkInDark=0;
   darkEl.style.opacity='0';
-  lightEl.style.opacity='0';lightOn=false;
-  updateLightHUD();
 }
+
+function startDarkness(level=1){return;}
+
+function endDarkness(){return;}
 
 // TERD oferece luz falsa
 function terdFakeLightAd(){
@@ -4674,29 +4736,8 @@ function buyLight(key){
 
 // ── GATILHOS DE ESCURIDÃO ──
 // escuridão após erros do sistema
-const _origFalseError=eventFalseError;
-window.eventFalseError=function(){
-  _origFalseError();
-  if(Math.random()<.5)setTimeout(()=>startDarkness(1+Math.floor(Math.random()*2)),2500);
-};
 
-// escuridão em fases avançadas
-setInterval(()=>{
-  if(horrorLevel>=4&&!darkActive&&Math.random()<.04)startDarkness(1);
-  if(horrorLevel>=6&&!darkActive&&Math.random()<.03)startDarkness(2);
-  if(horrorLevel>=8&&!darkActive&&Math.random()<.02)startDarkness(3);
-  // sai do escuro depois de um tempo
-  if(darkActive&&Math.random()<.015){
-    darknessLevel=Math.max(0,darknessLevel-1);
-    applyDarknessVisual();
-    if(darknessLevel===0)endDarkness();
-  }
-},5000);
-
-// escuridão durante presença do NULL
-setInterval(()=>{
-  if(nullStage>=2&&!darkActive&&Math.random()<.1)startDarkness(2);
-},8000);
+// sistema de escuridao desativado
 
 // Botão de loja de luz no nav ou via código
 // acesso via código 'loja' ou pelo ADM
@@ -4902,14 +4943,14 @@ function openCredits(){
   // escuridão se demorar demais (20s)
   setTimeout(()=>{
     if(!document.getElementById('creditsPanel'))return;
-    startDarkness(1);showMsg('Você está lendo demais.',2000);SFX.eerie();
+    showMsg('Você está lendo demais.',2000);SFX.eerie();
   },20000);
 }
 
 function creditsUnlockSecret(){unlockSecret(8);}
 
 function runPostCredits(){
-  endDarkness();
+  
   setTimeout(()=>{
     const ov=document.createElement('div');
     ov.style.cssText='position:fixed;inset:0;z-index:999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity 1s;';
@@ -5286,7 +5327,7 @@ const FAKE_FILES=[
     name:'memoria_corrompida.dat',
     icon:'💾',
     content:'0x000000NULL\n0x000000DEAD\n0xCAFEBABE\n\n[dados corrompidos]\n[restauracao falhou]\n[contato: NULL]\n\nnao leia isso',
-    afterOpen:()=>{SFX.glitch();showSysMsg('erro ao ler arquivo',2000);startDarkness(1);}
+    afterOpen:()=>{SFX.glitch();showSysMsg('erro ao ler arquivo',2000);}
   },
   {
     name:'voce.txt',
@@ -5410,7 +5451,7 @@ function showFakeFileWindow(file){
           // evento avançado: escurece + som para
           if(Math.random()<.5){
             setTimeout(()=>{
-              startDarkness(1);SFX.crash();
+              SFX.crash();
               const f=document.getElementById('flashEl');f.style.background='#000';f.style.opacity='.8';
               setTimeout(()=>f.style.opacity='0',200);
               showSysMsg('erro ao ler arquivo',2000);
@@ -5785,6 +5826,173 @@ function chaosOneLeft(ov){
 
 // Acessar caos via ADM ou código 'caos'
 // Já adicionado no keydown acima
+
+// ══════════════════════════════════════════════════════
+// UPGRADES VISUAIS
+// ══════════════════════════════════════════════════════
+let visualEffects={particles:false,neon:false,explode:false,matrix:false};
+
+function applyVisualUpgrade(fx){
+  visualEffects[fx]=true;
+  if(fx==='particles'){
+    // partículas maiores e mais coloridas
+    showToast('✨ Partículas melhoradas!');
+  }
+  if(fx==='neon'){
+    // rastro neon no botão
+    document.getElementById('tapBtn').style.filter='drop-shadow(0 0 8px #a855f7) drop-shadow(0 0 20px #ec4899)';
+    showToast('🌈 Rastro Neon ativado!');
+  }
+  if(fx==='explode'){
+    showToast('💥 Modo Explosão ativado!');
+  }
+  if(fx==='matrix'){
+    // chuva de caracteres verdes
+    startMatrixRain();
+    showToast('💚 Matrix ativado!');
+  }
+  SFX.buySpecial();
+}
+
+// Matrix rain effect
+let matrixActive=false;
+function startMatrixRain(){
+  if(matrixActive)return;
+  matrixActive=true;
+  const canvas=document.createElement('canvas');
+  canvas.id='matrixCanvas';
+  canvas.style.cssText='position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.15;';
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  document.body.insertBefore(canvas,document.body.firstChild);
+  const ctx=canvas.getContext('2d');
+  const cols=Math.floor(canvas.width/14);
+  const drops=Array(cols).fill(0);
+  const chars='0123456789ABCDEFアイウエオカキクケコNULL404';
+  setInterval(()=>{
+    if(!matrixActive)return;
+    ctx.fillStyle='rgba(0,0,0,.05)';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#00ff44';ctx.font='12px monospace';
+    drops.forEach((y,i)=>{
+      const c=chars[Math.floor(Math.random()*chars.length)];
+      ctx.fillText(c,i*14,y*14);
+      if(y*14>canvas.height&&Math.random()>.975)drops[i]=0;
+      else drops[i]++;
+    });
+  },50);
+}
+
+// Spawn partículas especiais com upgrade
+const _origSpawnParticles=spawnParticles;
+window.spawnParticles=function(e){
+  _origSpawnParticles(e);
+  if(!e)return;
+  if(visualEffects.explode&&comboCount>5){
+    // partícula extra em forma de explosão
+    for(let i=0;i<8;i++){
+      const p=document.createElement('div');p.className='particle';
+      const ang=(i/8)*Math.PI*2,dist=60+Math.random()*40;
+      p.style.cssText='left:'+e.clientX+'px;top:'+e.clientY+'px;width:'+(5+Math.random()*6)+'px;height:'+(5+Math.random()*6)+'px;background:#fbbf24;--dx:'+Math.cos(ang)*dist+'px;--dy:'+Math.sin(ang)*dist+'px;position:fixed;z-index:20;border-radius:50%;box-shadow:0 0 6px #fbbf24;';
+      document.getElementById('particles').appendChild(p);
+      setTimeout(()=>p.remove(),750);
+    }
+  }
+};
+
+// ══════════════════════════════════════════════════════
+// MÚSICA DE FUNDO (AMBIENTE)
+// ══════════════════════════════════════════════════════
+let bgMusicOn=false,bgMusicInterval=null;
+function startBGMusic(){
+  if(bgMusicOn)return;
+  bgMusicOn=true;
+  // toca hum suave a cada X segundos
+  bgMusicInterval=setInterval(()=>{
+    if(!bgMusicOn)return;
+    if(horrorLevel<3){
+      // fase normal: acorde suave
+      [261,329,392].forEach((f,i)=>tone(f,1.5,'sine',.015,i*.1));
+    } else {
+      // fase horror: drone sinistro
+      SFX.nullBreath();
+    }
+  },6000);
+  showToast('🎵 Música de fundo ativada!');
+}
+function stopBGMusic(){bgMusicOn=false;if(bgMusicInterval)clearInterval(bgMusicInterval);}
+
+// Sons do NULL melhorados — usa novos sons periodicamente
+setInterval(()=>{
+  if(nullStage>=1&&Math.random()<.08)SFX.nullWhisper();
+  if(nullStage>=2&&Math.random()<.05)SFX.nullBreath();
+  if(nullStage>=3&&Math.random()<.03)SFX.nullStep();
+},7000);
+
+// Sons dos personagens quando clicados
+const _origSpawnChar=spawnChar;
+window.spawnChar=function(key){
+  _origSpawnChar(key);
+  if(key==='terd')SFX.terdJingle();
+  else if(key==='qwert')SFX.qwertType();
+  else if(key==='err404')SFX.err404();
+  else if(key==='nullChar')SFX.nullWhisper();
+};
+
+// Sons de upgrade melhorados
+const _origBuyUpgrade=buyUpgrade;
+window.buyUpgrade=function(u,el){
+  const cost=upgCost(u);
+  if(score<cost||(upgLevels[u.id]||0)>=u.max)return;
+  if(u.type==='visual'){SFX.buySpecial();}
+  else if(cost>1e6){SFX.buySpecial();}
+  _origBuyUpgrade(u,el);
+};
+
+// ══════════════════════════════════════════════════════
+// NOVOS CÓDIGOS SECRETOS
+// ══════════════════════════════════════════════════════
+const newCodes={
+  'musica':      ()=>{startBGMusic();},
+  'semmusica':   ()=>{stopBGMusic();showToast('🔇 Música desativada');},
+  'matrix':      ()=>{startMatrixRain();showToast('💚 MATRIX!');},
+  'neon':        ()=>{applyVisualUpgrade('neon');},
+  'explodir':    ()=>{applyVisualUpgrade('explode');},
+  'ultrasom':    ()=>{SFX.clickCrit();SFX.buySpecial();SFX.null666();showToast('🔊 ULTRA SOM!');},
+  'silencio':    ()=>{try{getAC().suspend();showToast('🔇 Silêncio...');}catch(e){}setTimeout(()=>{try{getAC().resume();}catch(e){}},5000);},
+  'jukebox':     ()=>{Object.values(SFX).forEach((fn,i)=>setTimeout(()=>fn(),i*300));showToast('🎵 JUKEBOX!');},
+  'megaupgrade': ()=>{UPGRADES.filter(u=>u.type!=='visual').forEach(u=>{if((upgLevels[u.id]||0)<u.max){if(u.type==='click')clickPow+=u.val*3;if(u.type==='auto')autoPS+=u.val*3;if(u.type==='mult')mult+=u.val*2;upgLevels[u.id]=Math.min((upgLevels[u.id]||0)+3,u.max);}});renderUpgrades();updateHUD();showToast('⬆ MEGA UPGRADE!');SFX.buySpecial();},
+  'pontosmil':   ()=>{score+=1e3;updateHUD();showToast('+1K!');},
+  'pontosmilhao':()=>{score+=1e6;updateHUD();showToast('+1M!');},
+  'pontosbilhao':()=>{score+=1e9;updateHUD();showToast('+1B!');SFX.milestone();},
+  'critico':     ()=>{critChance=.5;showToast('🎯 50% crítico por 30s!');setTimeout(()=>critChance=0,30000);},
+  'combomega':   ()=>{comboCount=100;updateCombo();SFX.combo();showToast('🌪️ COMBO 100!');},
+  'nullcanta':   ()=>{['nullWhisper','nullBreath','nullStep','nullVoice','nullDom'].forEach((k,i)=>setTimeout(()=>SFX[k]?.(),i*600));showToast('👁 NULL canta...');},
+  'terdataca':   ()=>{spawnChar('terd');showTerd();showToast('📺 TERD atacou!');},
+  'qwertfala':   ()=>{startQWERT();showToast('⌨ QWERT fala!');},
+  'caos':        ()=>{openChaosPanel();},
+};
+
+// Integrar novos códigos no keydown existente
+const _origKeydown=document.onkeydown;
+document.addEventListener('keydown',e=>{
+  if(typeof sBuf==='undefined')return;
+  Object.entries(newCodes).forEach(([code,fn])=>{
+    if(sBuf.endsWith(code)){sBuf='';fn();}
+  });
+});
+
+// Integrar no input escondido do celular
+const _origCheckSecret=window.checkSecretInput;
+window.checkSecretInput=function(inp){
+  _origCheckSecret&&_origCheckSecret(inp);
+  const val=inp.value.toLowerCase();
+  Object.entries(newCodes).forEach(([code,fn])=>{
+    if(val.endsWith(code)){inp.value='';fn();}
+  });
+};
+
+// HUM de fundo suave no início
+setTimeout(()=>SFX.bgHum(),3000);
+setInterval(()=>SFX.bgHum(),30000);
 
 </script>
 
