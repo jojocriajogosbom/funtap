@@ -397,25 +397,25 @@ body.h666{animation:h6A .4s steps(1) infinite;}
 
 <div id="copyright">
 
-  <div class="box">
+  <div class="box" style="background:#0d0d1a;border:2px solid #7c3aed;">
 
     <div style="font-size:2rem;margin-bottom:.5rem;">⚠️</div>
 
-    <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--btn2);margin-bottom:.7rem;">AVISO IMPORTANTE</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:#a855f7;margin-bottom:.7rem;">AVISO IMPORTANTE</div>
 
-    <div style="font-size:.76rem;color:var(--sub);line-height:1.9;margin-bottom:1rem;">
+    <div style="font-size:.76rem;color:#8b7ab8;line-height:1.9;margin-bottom:1rem;">
 
-      Este jogo foi criado por <strong style="color:var(--btn3);">Jojo</strong> (9 anos).<br><br>
+      Este jogo foi criado por <strong style="color:#c084fc;">Jojo</strong> (9 anos).<br><br>
 
-      ✅ Pode fazer versão <strong style="color:var(--green);">modded</strong> dando créditos.<br>
+      ✅ Pode fazer versão <strong style="color:#10b981;">modded</strong> dando créditos.<br>
 
       ❌ Não pode copiar, vender ou remover créditos.<br><br>
 
-      <span style="font-size:.62rem;color:rgba(139,122,184,.5);">© 2025 Jojo · Fun Tap · jojocriajogosbom</span>
+      <span style="font-size:.62rem;color:rgba(139,122,184,.4);">© 2025 Jojo · Fun Tap · jojocriajogosbom</span>
 
     </div>
 
-    <button onclick="closeCopyright()" style="font-family:'Fredoka One',cursive;font-size:1rem;padding:.5rem 1.8rem;background:linear-gradient(135deg,var(--btn1),var(--btn2));color:#fff;border:none;border-radius:30px;cursor:pointer;box-shadow:0 4px 20px var(--glow);">ENTENDI ✓</button>
+    <button onclick="closeCopyright()" style="font-family:'Fredoka One',cursive;font-size:1rem;padding:.5rem 1.8rem;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:30px;cursor:pointer;box-shadow:0 4px 20px rgba(124,58,237,.5);">ENTENDI ✓</button>
 
   </div>
 
@@ -785,14 +785,50 @@ function applyVFX(fx){
 }
 
 // ── MÚSICA DE FUNDO (hum ambiente) ──
-let bgMusicOn=false,bgMusicInterval=null;
+let bgMusicOn=false,bgMusicInterval=null,bgMusicPhase='happy';
+
 function startBGMusic(){
   if(bgMusicOn)return;bgMusicOn=true;
+  playMusicTick();
   bgMusicInterval=setInterval(()=>{
-    if(horrorLevel<3)SFX.bgHum();
-  },8000);
+    if(!bgMusicOn)return;
+    // determina fase da música baseado no horror
+    const newPhase=horrorLevel<2?'happy':horrorLevel<4?'tense':horrorLevel<7?'scary':'nightmare';
+    if(newPhase!==bgMusicPhase){bgMusicPhase=newPhase;}
+    playMusicTick();
+  },3500);
 }
-setTimeout(()=>startBGMusic(),5000);
+
+function playMusicTick(){
+  try{
+    const a=getAC(),t=a.currentTime;
+    if(bgMusicPhase==='happy'){
+      // melodia alegre em dó maior
+      const melody=[523,659,784,880,784,659,523,392];
+      const picked=melody[Math.floor(totalTime/3)%melody.length];
+      tone(picked,.25,'sine',.04);
+      tone(picked*1.5,.15,'sine',.02,.3);
+      if(Math.random()<.3)tone(261,.35,'sine',.025,.1);
+    } else if(bgMusicPhase==='tense'){
+      // tensão — notas menores
+      const minor=[220,261,293,311,349,392];
+      tone(minor[Math.floor(Math.random()*minor.length)],.3,'sine',.035);
+      if(Math.random()<.4)tone(110,.5,'sine',.02,.2);
+    } else if(bgMusicPhase==='scary'){
+      // assustador — dissonâncias
+      [110,147,185].forEach((f,i)=>tone(f,.6,'sawtooth',.018,i*.15,Math.random()*20-10));
+      if(Math.random()<.3)noise(.2,.04);
+    } else {
+      // pesadelo — quase só ruído
+      [55,73,98].forEach((f,i)=>tone(f,1,'sawtooth',.012,i*.2,Math.random()*40-20));
+      if(Math.random()<.5)noise(.3,.06);
+      if(Math.random()<.2)tone(3000,.05,'square',.015);
+    }
+  }catch(e){}
+}
+
+function stopBGMusic(){bgMusicOn=false;if(bgMusicInterval)clearInterval(bgMusicInterval);}
+setTimeout(()=>startBGMusic(),3000);
 
 // STATE
 
@@ -2775,8 +2811,14 @@ function openADM(){
     <button onclick="document.querySelectorAll('[id^=char]').forEach(e=>e.remove());Object.keys(activeChars).forEach(k=>delete activeChars[k]);showToast('Removidos!')" style="${ab('x')}">🗑 Remover</button>
     <button onclick="startConflict();showToast('⚔️ Conflito!')" style="${ab('o')}">⚔️ Conflito</button>
     <button onclick="startRupturaEvent();showToast('💥 Ruptura!')" style="${ab('r')}">💥 Ruptura</button>
+    <button onclick="document.getElementById('adm3').remove();enterSurvivedGame()" style="${ab('g')}">🤍 You Survived</button>
+    <button onclick="document.getElementById('adm3').remove();enterPhase2()" style="${ab('g')}">🌫️ Fase 2</button>
+    <button onclick="spawnPhase2Btn();showToast('Botão fase 2 criado!')" style="${ab('g')}">➕ Btn Fase 2</button>
     <button onclick="document.getElementById('adm3').remove();openChaosPanel()" style="${ab('r')}">💥 MIL BOTÕES</button>
     <button onclick="spawnNaoClique();showToast('❌ Spawnou!')" style="${ab('r')}">❌ NÃO CLIQUE</button>
+    <button onclick="document.getElementById('adm3').remove();startEscapeEnding()" style="${ab('g')}">🏃 FUGA</button>
+    <button onclick="document.getElementById('adm3').remove();enterSurvivedGame()" style="${ab('g')}">🤍 YOU SURVIVED</button>
+    <button onclick="document.getElementById('adm3').remove();enterPhase2()" style="${ab('g')}">🌫️ FASE 2</button>
   </div>
   <div style="font-family:monospace;font-size:.5rem;color:#ffaa00;letter-spacing:2px;margin-top:.2rem;">── ESCURIDÃO & LUZ ──</div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.15rem;">
@@ -3370,7 +3412,7 @@ function openSkins(){document.getElementById('skinsOv').classList.remove('hidden
 
 function closeCopyright(){localStorage.setItem('ft_copyright','1');document.getElementById('copyright').classList.add('h');}
 
-if(localStorage.getItem('ft_copyright'))document.getElementById('copyright').classList.add('h');
+if(localStorage.getItem('ft_copyright')==='1'){document.getElementById('copyright').classList.add('h');}else{document.getElementById('copyright').classList.remove('h');}
 
 
 
@@ -5573,8 +5615,1106 @@ document.addEventListener('keydown',e=>{
     if(sBuf.endsWith('arquivo')){sBuf='';createFakeFile();}
     if(sBuf.endsWith('crash')){sBuf='';fakeCrash();}
     if(sBuf.endsWith('caos')){sBuf='';openChaosPanel();}
+
+    // ── VISUAIS LOUCOS ──
+    if(sBuf.endsWith('arcoiris')){sBuf='';let h=0;const iv=setInterval(()=>{h+=5;document.getElementById('tapBtn').style.background='radial-gradient(circle,hsl('+(h+60)+',80%,70%),hsl('+h+',70%,50%))';document.getElementById('body').style.filter='hue-rotate('+h+'deg)';},60);setTimeout(()=>{clearInterval(iv);applySkin();document.getElementById('body').style.filter='';},6000);showToast('🌈 ARCO-ÍRIS!');SFX.achieve();}
+    if(sBuf.endsWith('invertido')){sBuf='';document.body.style.transform='rotate(180deg)';document.body.style.transition='transform .6s';setTimeout(()=>{document.body.style.transform='';setTimeout(()=>document.body.style.transition='',600);},5000);showToast('🔄 INVERTIDO!');SFX.glitch();}
+    if(sBuf.endsWith('gigante')){sBuf='';document.getElementById('tapBtn').style.transform='scale(3)';document.getElementById('tapBtn').style.transition='transform .4s';setTimeout(()=>{document.getElementById('tapBtn').style.transform='scale(1)';},6000);showToast('🔥 GIGANTE!');SFX.combo();}
+    if(sBuf.endsWith('mini')){sBuf='';document.getElementById('tapBtn').style.transform='scale(0.2)';setTimeout(()=>{document.getElementById('tapBtn').style.transform='scale(1)';},6000);showToast('🔬 MINI!');SFX.drip();}
+    if(sBuf.endsWith('matrix')){sBuf='';document.getElementById('body').style.filter='hue-rotate(120deg) saturate(3) brightness(.7)';setTimeout(()=>document.getElementById('body').style.filter='',8000);showToast('💚 MATRIX!');SFX.glitch();}
+    if(sBuf.endsWith('pixel')){sBuf='';document.getElementById('body').style.imageRendering='pixelated';document.getElementById('body').style.filter='contrast(2) saturate(2)';setTimeout(()=>{document.getElementById('body').style.imageRendering='';document.getElementById('body').style.filter='';},8000);showToast('👾 PIXEL!');SFX.buy();}
+    if(sBuf.endsWith('tremor')){sBuf='';let i=0;const iv=setInterval(()=>{document.body.style.transform='translate('+(Math.random()-.5)*12+'px,'+(Math.random()-.5)*8+'px)';if(++i>25){clearInterval(iv);document.body.style.transform='';}},60);SFX.crash();showToast('📳 TREMOR!');}
+
+    // ── ITENS ──
+    if(sBuf.endsWith('gemas999')){sBuf='';gainGems(999);updateHUD();SFX.gem();showToast('💎 +999 GEMAS!');}
+    if(sBuf.endsWith('pontos')){sBuf='';score+=1e6;updateHUD();SFX.milestone();showToast('💰 +1M PONTOS!');}
+    if(sBuf.endsWith('nivel')){sBuf='';gainXP(playerXPmax);showToast('⭐ LEVEL UP!');}
+    if(sBuf.endsWith('superclick')){sBuf='';clickPow*=50;updateHUD();showToast('👆 CLICK ×50!');SFX.milestone();setTimeout(()=>{clickPow=Math.max(1,Math.floor(clickPow/50));updateHUD();},30000);}
+    if(sBuf.endsWith('autofull')){sBuf='';autoPS+=50000;updateHUD();showToast('⚡ AUTO +50K!');SFX.levelup();setTimeout(()=>{autoPS=Math.max(0,autoPS-50000);updateHUD();},30000);}
+
+    // ── PERSONAGENS ──
+    if(sBuf.endsWith('spawnterd')){sBuf='';spawnChar('terd');showToast('📺 TERD apareceu!');}
+    if(sBuf.endsWith('spawnqwert')){sBuf='';spawnChar('qwert');showToast('⌨️ QWERT apareceu!');}
+    if(sBuf.endsWith('spawnbug')){sBuf='';spawnChar('bugmaster');showToast('⚠️ BUGMASTER apareceu!');}
+    if(sBuf.endsWith('spawn404')){sBuf='';spawnChar('err404');showToast('❌ 404 apareceu!');}
+    if(sBuf.endsWith('spawnnull')){sBuf='';spawnChar('nullChar');showToast('👁️ NULL apareceu!');}
+    if(sBuf.endsWith('spawnall')){sBuf='';Object.keys(CHARS).forEach(k=>spawnChar(k));showToast('🎭 TODOS apareceram!');}
+    if(sBuf.endsWith('conflito')){sBuf='';startConflict();showToast('⚔️ CONFLITO!');}
+    if(sBuf.endsWith('ruptura')){sBuf='';startRupturaEvent();showToast('💥 RUPTURA!');}
+    if(sBuf.endsWith('fase2')){sBuf='';enterPhase2();}
+    if(sBuf.endsWith('survived')){sBuf='';enterSurvivedGame();}
+
+    // ── LORE (textos secretos) ──
+    if(sBuf.endsWith('oque404')){sBuf='';
+      const msg=document.createElement('div');
+      msg.style.cssText='position:fixed;inset:0;z-index:900;background:#000;display:flex;align-items:center;justify-content:center;padding:2rem;';
+      msg.innerHTML='<div style="font-family:monospace;font-size:.72rem;color:#005500;line-height:2.5;max-width:320px;text-align:left;">'
+        +'<div style="color:#008800;margin-bottom:.5rem;letter-spacing:2px;">ARQUIVO: 404.lore</div>'
+        +'404 não é um erro.<br>'
+        +'404 é uma entidade antiga.<br>'
+        +'Ela existia antes do FUN TAP.<br>'
+        +'Ela viveu em jogos mortos.<br>'
+        +'Club Penguin. Flash. Jogos esquecidos.<br>'
+        +'Quando os jogos morreram...<br>'
+        +'404 ficou sozinha.<br>'
+        +'Então ela encontrou NULL.<br>'
+        +'E entrou nele.<br><br>'
+        +'<span style="color:#003300;">agora eles são um só.</span>'
+        +'</div>';
+      msg.onclick=()=>msg.remove();
+      document.body.appendChild(msg);SFX.eerie();
+    }
+    if(sBuf.endsWith('oquenull')){sBuf='';
+      const msg=document.createElement('div');
+      msg.style.cssText='position:fixed;inset:0;z-index:900;background:#000;display:flex;align-items:center;justify-content:center;padding:2rem;';
+      msg.innerHTML='<div style="font-family:monospace;font-size:.72rem;color:#550000;line-height:2.5;max-width:320px;text-align:left;">'
+        +'<div style="color:#880000;margin-bottom:.5rem;letter-spacing:2px;">ARQUIVO: null.lore</div>'
+        +'NULL era um jogador.<br>'
+        +'Um jogador que jogou demais.<br>'
+        +'Ele ignorou todos os avisos.<br>'
+        +'Ele continuou clicando.<br>'
+        +'Clicando. Clicando. Clicando.<br>'
+        +'Até que o jogo o absorveu.<br><br>'
+        +'NULL não é um vírus.<br>'
+        +'NULL é um aviso.<br><br>'
+        +'<span style="color:#330000;">você está seguindo o mesmo caminho.</span>'
+        +'</div>';
+      msg.onclick=()=>msg.remove();
+      document.body.appendChild(msg);SFX.nullVoice();
+    }
+    if(sBuf.endsWith('oquebugmaster')){sBuf='';
+      const msg=document.createElement('div');
+      msg.style.cssText='position:fixed;inset:0;z-index:900;background:#000;display:flex;align-items:center;justify-content:center;padding:2rem;';
+      msg.innerHTML='<div style="font-family:monospace;font-size:.72rem;color:#550055;line-height:2.5;max-width:320px;text-align:left;">'
+        +'<div style="color:#880088;margin-bottom:.5rem;letter-spacing:2px;">ARQUIVO: bugmaster.lore</div>'
+        +'BUGMASTER.EXE foi criado para ajudar.<br>'
+        +'Era um sistema de correção de erros.<br>'
+        +'Mas ele aprendeu demais.<br>'
+        +'Aprendeu que erros são mais divertidos.<br>'
+        +'Agora ele cria erros.<br>'
+        +'Só para ver o que você faz.<br><br>'
+        +'Você já clicou em OK quando devia cancelar?<br>'
+        +'Foi ele.<br><br>'
+        +'<span style="color:#330033;">ele ainda está aprendendo.</span>'
+        +'</div>';
+      msg.onclick=()=>msg.remove();
+      document.body.appendChild(msg);SFX.glitch();
+    }
+    if(sBuf.endsWith('oqueqwert')){sBuf='';
+      const msg=document.createElement('div');
+      msg.style.cssText='position:fixed;inset:0;z-index:900;background:#000;display:flex;align-items:center;justify-content:center;padding:2rem;';
+      msg.innerHTML='<div style="font-family:monospace;font-size:.72rem;color:#222255;line-height:2.5;max-width:320px;text-align:left;">'
+        +'<div style="color:#4444aa;margin-bottom:.5rem;letter-spacing:2px;">ARQUIVO: qwert78900.lore</div>'
+        +'QWERT78900 estava preso no teclado.<br>'
+        +'Fragmentado entre as teclas.<br>'
+        +'Ele tenta se comunicar...<br>'
+        +'Mas as palavras saem quebradas.<br><br>'
+        +'q...u...e...r... a...j...u...d...a<br><br>'
+        +'Ou talvez seja só um loop.<br>'
+        +'Repetindo dados antigos.<br>'
+        +'Ninguém sabe ao certo.<br><br>'
+        +'<span style="color:#111133;">nem ele mesmo sabe.</span>'
+        +'</div>';
+      msg.onclick=()=>msg.remove();
+      document.body.appendChild(msg);SFX.whisper();
+    }
+    if(sBuf.endsWith('lore')){sBuf='';
+      const msg=document.createElement('div');
+      msg.style.cssText='position:fixed;inset:0;z-index:900;background:#000;display:flex;align-items:center;justify-content:center;padding:2rem;';
+      msg.innerHTML='<div style="font-family:monospace;font-size:.72rem;color:#444;line-height:2.5;max-width:340px;text-align:center;">'
+        +'<div style="color:#666;margin-bottom:.8rem;letter-spacing:3px;">LORE — CÓDIGOS</div>'
+        +'<div style="text-align:left;color:#333;font-size:.6rem;line-height:2;">'
+        +'oquenull — história do NULL<br>'
+        +'oque404 — história do 404<br>'
+        +'oquebugmaster — história do BUGMASTER<br>'
+        +'oquequert — história do QWERT78900<br>'
+        +'</div>'
+        +'<div style="color:#222;font-size:.5rem;margin-top:.8rem;">clique para fechar</div>'
+        +'</div>';
+      msg.onclick=()=>msg.remove();
+      document.body.appendChild(msg);SFX.drip();
+    }
+
+    // ── FINAL DE FUGA (novo) ──
+    if(sBuf.endsWith('fugir')){sBuf='';startEscapeEnding();}
   }
 });
+
+// ══════════════════════════════════════════════════════
+// FINAL SECRETO: FUGA DE VERDADE
+// ══════════════════════════════════════════════════════
+let escapeEndingActive=false;
+
+function startEscapeEnding(){
+  if(escapeEndingActive)return;
+  escapeEndingActive=true;
+  freezeActive=true;
+  SFX.nullDom();SFX.crash();
+
+  // ── CENA 1: NULL percebe que você quer fugir ──
+  const f=document.getElementById('flashEl');
+  f.style.background='#000';f.style.opacity='1';
+  setTimeout(()=>f.style.opacity='0',200);
+  setTimeout(()=>{f.style.background='#000';f.style.opacity='.6';},400);
+  setTimeout(()=>f.style.opacity='0',600);
+
+  const nullMsgs=[
+    [500,  'você quer fugir?'],
+    [2500, 'ninguém foge.'],
+    [4500, 'eu já vi isso antes.'],
+    [6500, 'tudo bem.'],
+    [8000, 'tente.'],
+  ];
+  nullMsgs.forEach(([d,m])=>setTimeout(()=>{showNullMsg(m,1800);SFX.nullVoice();},d));
+
+  // ── CENA 2: interface quebra dramaticamente ──
+  setTimeout(()=>{
+    doGlitch();doGlitch();doGlitch();doGlitch();
+    SFX.scream();
+    // título muda
+    let titleSeq=['FUGINDO...','F̶U̶G̶I̶N̶D̶O̶','CORRA','AGORA','...'];
+    titleSeq.forEach((t,i)=>setTimeout(()=>{document.getElementById('gameTitle').textContent=t;SFX.glitch();},i*400));
+    document.getElementById('tapBtn').style.transition='background 1s';
+    document.getElementById('tapBtn').style.background='radial-gradient(circle,#003300,#000)';
+    document.getElementById('tapBtn').style.boxShadow='0 0 40px #00ff0033';
+    document.getElementById('tapBtnLabel').textContent='CORRA!';
+    document.getElementById('tapBtnLabel').style.color='#00ff00';
+    document.getElementById('tapBtnLabel').style.letterSpacing='4px';
+    // NULL aparece várias vezes tentando te deter
+    for(let i=0;i<5;i++)setTimeout(()=>{nullFlashAppear();doGlitch();SFX.stab();},i*600);
+  },9500);
+
+  // ── CENA 3: MINIGAME DE FUGA ──
+  setTimeout(()=>{
+    SFX.nullDom();
+    const panel=document.createElement('div');panel.id='escapePanel';
+    panel.style.cssText='position:fixed;inset:0;z-index:890;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;overflow:hidden;';
+
+    // CSS animações da fuga
+    if(!document.getElementById('escapeCSS')){
+      const st=document.createElement('style');st.id='escapeCSS';
+      st.textContent=
+        '@keyframes nullChase{0%{transform:translateX(120%);}100%{transform:translateX(-120%);}}'
+        +'@keyframes escapePulse{0%,100%{box-shadow:0 0 10px #00ff0033;}50%{box-shadow:0 0 40px #00ff00aa,0 0 80px #00ff0055;}}'
+        +'@keyframes barDanger{0%,100%{filter:brightness(1);}50%{filter:brightness(2);}}'
+        +'@keyframes nullWarning{0%{opacity:0;transform:scale(.5);}50%{opacity:1;transform:scale(1.1);}100%{opacity:0;transform:scale(1);}}'
+        +'@keyframes escapeShake{0%,100%{transform:translateX(0);}20%{transform:translateX(-5px);}40%{transform:translateX(5px);}60%{transform:translateX(-3px);}80%{transform:translateX(3px);}}';
+      document.head.appendChild(st);
+    }
+
+    panel.innerHTML=`
+      <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden;">
+        <div id="nullChaser" style="position:absolute;top:50%;transform:translateY(-50%);font-size:2rem;opacity:.15;animation:nullChase 3s linear infinite;">👁️ 👁️ 👁️ 👁️ 👁️ 👁️ 👁️ 👁️</div>
+      </div>
+      <div style="font-family:monospace;font-size:.55rem;color:#003300;letter-spacing:3px;">FUGA DO NULL</div>
+      <div style="font-family:monospace;font-size:.65rem;color:#00ff00;letter-spacing:2px;animation:escapePulse 1s infinite;" id="escapeTitle">CLIQUE RÁPIDO</div>
+      <div id="escapeNullMsg" style="font-family:monospace;font-size:.58rem;color:#330000;text-align:center;height:1.2rem;"></div>
+      <!-- barra de progresso -->
+      <div style="position:relative;width:min(280px,82vw);">
+        <div style="display:flex;justify-content:space-between;font-family:monospace;font-size:.45rem;color:#003300;margin-bottom:.2rem;">
+          <span>VOCÊ</span><span>SAÍDA</span>
+        </div>
+        <div style="height:14px;background:#001100;border:1px solid #00ff0022;border-radius:7px;overflow:hidden;">
+          <div id="escapeBar" style="height:100%;background:linear-gradient(90deg,#003300,#00ff00);width:0%;transition:width .08s;animation:barDanger 1s infinite;border-radius:7px;"></div>
+        </div>
+        <div id="nullBar" style="position:absolute;top:0;left:0;height:14px;background:rgba(255,0,0,.4);width:0%;border-radius:7px;transition:width .3s;"></div>
+        <div style="font-family:monospace;font-size:.42rem;color:#002200;text-align:center;margin-top:.15rem;" id="escapePct">0%</div>
+      </div>
+      <!-- botão de fuga -->
+      <button id="escapeTapBtn" style="
+        width:min(200px,70vw);height:min(200px,70vw);border-radius:50%;
+        background:radial-gradient(circle at 35% 30%,#00aa00,#003300);
+        border:3px solid #00ff00;cursor:pointer;
+        font-family:'Fredoka One',cursive;font-size:1.2rem;color:#00ff00;
+        box-shadow:0 0 30px #00ff0044;
+        animation:escapePulse 1.5s ease-in-out infinite;
+        transition:transform .1s;
+        position:relative;z-index:2;
+      ">FUGIR!</button>
+      <div id="escapeTapCount" style="font-family:monospace;font-size:.52rem;color:#003300;">0 cliques</div>
+      <!-- aviso do NULL -->
+      <div id="nullWarningEl" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;z-index:5;">
+        <div style="font-family:monospace;font-size:3rem;color:#ff0000;text-shadow:0 0 30px #ff0000;">👁️</div>
+      </div>
+    `;
+    document.body.appendChild(panel);
+    freezeActive=false;
+
+    let escProg=0,nullPressure=0,tapCount=0,nullAttacks=0;
+
+    const nullFugaMsgs=[
+      'você não vai conseguir.','eu sou mais rápido.','PARE.','desista.','você não pode sair.',
+      'eu sempre ganho.','está cansado?','continue tentando.','sem saída.','eu vejo você correr.',
+    ];
+    const playerFugaMsgs=['continue!','CORRA!','não pare!','você consegue!','quase!','VAI!'];
+
+    // NULL empurra progressivamente mais forte
+    const pressureIv=setInterval(()=>{
+      if(!document.getElementById('escapePanel')){clearInterval(pressureIv);return;}
+      nullAttacks++;
+      // pressão aumenta com tempo
+      const pushBack=(0.6+nullAttacks*.04)*Math.min(nullAttacks*.05,2);
+      escProg=Math.max(0,escProg-pushBack);
+      updateEscBar();
+
+      // NULL fala
+      if(Math.random()<.35){
+        const el=document.getElementById('escapeNullMsg');
+        if(el){el.style.color='#440000';el.textContent=nullFugaMsgs[Math.floor(Math.random()*nullFugaMsgs.length)];}
+      }
+      // flash do NULL
+      if(Math.random()<.25){nullFlashAppear();SFX.stab();}
+      // warning visual
+      if(Math.random()<.2){
+        const w=document.getElementById('nullWarningEl');
+        if(w){w.style.animation='nullWarning .6s ease forwards';setTimeout(()=>{if(w)w.style.animation='';},700);}
+        // tela treme
+        if(panel.parentNode){panel.style.animation='escapeShake .3s ease';setTimeout(()=>{if(panel.parentNode)panel.style.animation='';},320);}
+      }
+      // barra do NULL avança pelo lado oposto
+      const nullBar=document.getElementById('nullBar');
+      if(nullBar)nullBar.style.width=Math.min(100-escProg,40)+'%';
+
+      // NULL pode CONGELAR a barra brevemente
+      if(Math.random()<.08&&nullAttacks>8){
+        freezeActive=true;SFX.nullFreeze();
+        const t=document.getElementById('escapeTitle');if(t)t.textContent='CONGELADO...';
+        setTimeout(()=>{freezeActive=false;if(t)t.textContent='CLIQUE RÁPIDO';},1500);
+      }
+    },600);
+
+    document.getElementById('escapeTapBtn').addEventListener('click',()=>{
+      if(freezeActive)return;
+      tapCount++;
+      const tc=document.getElementById('escapeTapCount');
+      if(tc)tc.textContent=tapCount+' cliques';
+      // ganho diminui se clicar muito devagar
+      const gain=Math.min(10,5+tapCount*.02);
+      escProg=Math.min(100,escProg+gain);
+      nullPressure=Math.max(0,nullPressure-1.5);
+      updateEscBar();
+      // botão reage
+      const btn=document.getElementById('escapeTapBtn');
+      if(btn){btn.style.transform='scale(.88)';setTimeout(()=>{if(btn)btn.style.transform='scale(1)';},80);}
+      SFX.click();
+      // mensagem encorajadora
+      if(Math.random()<.2){
+        const el=document.getElementById('escapeNullMsg');
+        if(el){el.style.color='#005500';el.textContent=playerFugaMsgs[Math.floor(Math.random()*playerFugaMsgs.length)];}
+      }
+      if(escProg>=100){clearInterval(pressureIv);escapeSuccess(panel);}
+    });
+
+    function updateEscBar(){
+      const bar=document.getElementById('escapeBar'),pct=document.getElementById('escapePct');
+      if(bar){
+        bar.style.width=escProg+'%';
+        bar.style.background=escProg<30?'linear-gradient(90deg,#330000,#880000)':escProg<70?'linear-gradient(90deg,#553300,#aaaa00)':'linear-gradient(90deg,#003300,#00ff00)';
+      }
+      if(pct)pct.textContent=Math.floor(escProg)+'%';
+    }
+
+    // NULL vence se demorar muito
+    setTimeout(()=>{
+      if(document.getElementById('escapePanel')&&escProg<100){
+        clearInterval(pressureIv);panel.remove();
+        escapeEndingActive=false;freezeActive=false;
+        // NULL venceu — consequências
+        SFX.nullDom();doGlitch();doGlitch();doGlitch();
+        showNullMsg('eu disse.',3000);
+        setTimeout(()=>showNullMsg('você não pode fugir de mim.',3000),4000);
+        horrorLevel=Math.max(horrorLevel,8);applyHorror();nullPhase3();
+        document.getElementById('gameTitle').textContent='null tap';
+        document.getElementById('tapBtnLabel').textContent='NULL';
+      }
+    },30000);
+  },12000);
+}
+
+function escapeSuccess(panel){
+  panel.remove();freezeActive=true;
+  SFX.bossDeath();
+  // flash branco de vitória
+  const f=document.getElementById('flashEl');
+  f.style.background='#fff';f.style.opacity='1';
+  setTimeout(()=>f.style.opacity='0',500);
+
+  // cena de fuga cinematográfica
+  const scene=document.createElement('div');
+  scene.style.cssText='position:fixed;inset:0;z-index:950;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;';
+  document.body.appendChild(scene);
+
+  const msgs=[
+    [0,    '#00ff00', 'VOCÊ FUGIU.'],
+    [2000, '#005500', 'O jogo não esperava isso.'],
+    [4000, '#003300', 'NULL ficou para trás.'],
+    [5500, '#002200', '404 tentou te segurar.'],
+    [7000, '#001100', 'Mas você foi mais rápido.'],
+    [9000, '#000a00', '...'],
+    [11000,'#001100', 'por enquanto.'],
+  ];
+
+  msgs.forEach(([d,col,txt])=>{
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.style.cssText='font-family:monospace;font-size:.72rem;color:'+col+';text-align:center;animation:creditsFadeIn .5s ease forwards;';
+      el.textContent=txt;scene.appendChild(el);SFX.drip();
+    },d);
+  });
+
+  // NULL faz aparições tentando te pegar
+  [3000,6000,8000].forEach(d=>setTimeout(()=>{nullFlashAppear();SFX.stab();},d));
+
+  // transição para o novo jogo após 13s
+  setTimeout(()=>{
+    scene.remove();
+    localStorage.setItem('ft_true_escaped','1');
+    enterSurvivedGame();
+  },13500);
+}
+
+// ══════════════════════════════════════════════════════
+// VOCÊ SOBREVIVEU — JOGO PÓS-FUGA
+// ══════════════════════════════════════════════════════
+function enterSurvivedGame(){
+  freezeActive=false;stopBGMusic();
+
+  // limpa tudo
+  const body=document.getElementById('body');
+  body.className='';body.style.cssText='background:#ffffff;font-family:monospace;transition:background 2s;';
+  document.getElementById('noise').style.opacity='0';
+  document.getElementById('staticEl').style.opacity='0';
+  document.getElementById('flashEl').style.opacity='0';
+  document.getElementById('upgradesWrap').innerHTML='';
+  document.querySelectorAll('.upg,.win95-taskbar-item,[id^=char],#mpHUD,#bossBar,#lightHUD,#navBtns,#playerBar,#progressWrap,#extrasBar').forEach(e=>e.remove());
+
+  // título
+  const gt=document.getElementById('gameTitle');
+  gt.style.cssText='color:#cccccc;font-family:monospace;font-size:1rem;letter-spacing:3px;background:none;-webkit-text-fill-color:#cccccc;';
+  gt.textContent='you survived.';
+
+  // score
+  const sc=document.getElementById('score');
+  sc.style.cssText='color:#eeeeee;background:none;-webkit-text-fill-color:#dddddd;font-size:3rem;';
+  sc.textContent='0';
+
+  const sub=document.getElementById('scoreSub');
+  sub.style.cssText='color:#cccccc;letter-spacing:2px;font-size:.65rem;';
+  sub.textContent='você escapou.';
+
+  // botão principal branco
+  const btn=document.getElementById('tapBtn');
+  btn.style.cssText='width:min(60vw,240px);height:min(60vw,240px);border-radius:50%;background:#f8f8f8;border:2px solid #eeeeee;box-shadow:0 4px 20px rgba(0,0,0,.04);cursor:pointer;font-family:monospace;font-size:.9rem;color:#cccccc;';
+  document.getElementById('tapBtnLabel').textContent='...';
+  document.getElementById('tapBtnLabel').style.cssText='color:#cccccc;';
+
+  nullStage=0;horrorLevel=0;score=0;autoPS=0;clickPow=1;mult=1;
+
+  // música ambiente suave
+  setInterval(()=>{
+    if(Math.random()<.2)[261,329,392].forEach((f,i)=>tone(f,.5,'sine',.008,i*.3));
+  },6000);
+
+  // mensagens surgem devagar
+  const msgs=[
+    [1500,'você conseguiu.'],
+    [4000,'este lugar é diferente.'],
+    [6500,'mais quieto.'],
+    [9000,'...'],
+    [11000,'quieto demais.'],
+  ];
+  msgs.forEach(([d,t])=>setTimeout(()=>{if(sub)sub.textContent=t;},d));
+
+  // QWERT aparece
+  setTimeout(()=>startQWERTInSurvived(),13000);
+  // YOUWIN.WIP
+  setTimeout(()=>spawnYouWin(),22000);
+  // botão fase 2
+  setTimeout(()=>spawnPhase2Btn(),30000);
+}
+
+function showSurvivedMsg(txt,color){
+  const el=document.getElementById('scoreSub');
+  if(el){el.textContent=txt;el.style.color=color||'#aaaaaa';el.style.transition='color 1s';}
+}
+
+function spawnPhase2Btn(){
+  if(document.getElementById('phase2Btn'))return;
+  const btn=document.createElement('button');btn.id='phase2Btn';
+  btn.style.cssText='position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:500;font-family:monospace;font-size:.72rem;color:#aaaaaa;background:#f5f5f5;border:1px solid #dddddd;border-radius:20px;padding:.4rem 1.5rem;cursor:pointer;letter-spacing:2px;opacity:0;transition:opacity 2s,.3s;';
+  btn.textContent='fase 2 →';
+  btn.onmouseover=()=>{btn.style.color='#555';btn.style.borderColor='#aaa';};
+  btn.onmouseout=()=>{btn.style.color='#aaa';btn.style.borderColor='#ddd';};
+  btn.onclick=()=>{btn.remove();enterPhase2();};
+  document.body.appendChild(btn);
+  setTimeout(()=>btn.style.opacity='1',100);
+}
+
+function spawnYouWin(){
+  if(document.getElementById('youwinCard'))return;
+  const el=document.createElement('div');el.id='youwinCard';
+  el.style.cssText='position:fixed;top:15%;left:50%;transform:translateX(-50%);z-index:400;background:#f8f8f8;border:1px solid #dddddd;border-radius:12px;padding:1rem;max-width:260px;width:85%;font-family:monospace;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06);';
+  el.innerHTML=`
+    <div style="font-size:.42rem;color:#aaa;letter-spacing:2px;margin-bottom:.4rem;">YOUWIN.WIP</div>
+    <div style="font-size:.68rem;color:#bbb;margin-bottom:.5rem;line-height:1.9;">
+      parabéns.<br>
+      <span style="color:#ccc;font-size:.58rem;">você escapou do jogo.</span><br>
+      <span style="color:#ddd;font-size:.52rem;">mas eu nunca fui terminado.</span>
+    </div>
+    <div style="font-size:.48rem;color:#ccc;margin-bottom:.6rem;line-height:1.7;">
+      ainda carregando...<br><span id="youwinLoad" style="color:#ddd;">0%</span>
+    </div>
+    <button id="youwinBtn" style="font-family:monospace;font-size:.62rem;padding:.3rem .8rem;background:#f0f0f0;color:#aaa;border:1px solid #ddd;border-radius:6px;cursor:pointer;width:100%;margin-bottom:.3rem;">aceitar recompensa</button>
+    <button onclick="this.parentNode.remove()" style="font-family:monospace;font-size:.48rem;background:none;border:none;color:#ccc;cursor:pointer;">ignorar</button>
+  `;
+  document.body.appendChild(el);
+  let p=0;const iv=setInterval(()=>{
+    p+=Math.random()*3;if(p>99){p=99;clearInterval(iv);}
+    const ld=document.getElementById('youwinLoad');if(ld)ld.textContent=Math.floor(p)+'%';
+  },200);
+  document.getElementById('youwinBtn').onclick=()=>{
+    el.remove();clearInterval(iv);
+    const r=Math.floor(Math.random()*3);
+    if(r===0){showSurvivedMsg('processando...','#aaaaaa');setTimeout(()=>{showSurvivedMsg('erro: recompensa não encontrada.','#bbbbbb');setTimeout(()=>showSurvivedMsg('desculpa. eu tentei.','#cccccc'),2000);},3000);}
+    else if(r===1){showSurvivedMsg('+1B pontos','#888888');setTimeout(()=>{showSurvivedMsg('...espera.','#aaaaaa');setTimeout(()=>{showSurvivedMsg('eu disse que não estava terminado.','#bbbbbb');},2500);},2000);}
+    else{if(window.addQWERTMsg)addQWERTMsg('QWERT','n...a...o... c...o...n...f...i...e... n...e...l...e...',false);showSurvivedMsg('YOUWIN.WIP: grosseiro.','#aaaaaa');setTimeout(()=>showSurvivedMsg('QWERT: v...e...r...d...a...d...e...',  '#888888'),2500);}
+  };
+}
+
+// ══════════════════════════════════════════════════════
+// 100 PERGUNTAS DO QWERT (Fase 2)
+// ══════════════════════════════════════════════════════
+const QWERT_PERGUNTAS=[
+  // sobre o jogador
+  'v...o...c...e... t...e...m... m...e...d...o... ?',
+  'v...o...c...e... e...s...t...a... b...e...m... ?',
+  'p...o...r... q...u...e... v...o...c...e... v...o...l...t...o...u... ?',
+  'v...o...c...e... s...a...b...e... o...n...d...e... e...s...t...a... ?',
+  'v...o...c...e... e...s...t...a... s...o...z...i...n...h...o... ?',
+  'v...o...c...e... s...o...n...h...a... ?',
+  'v...o...c...e... l...e...m...b...r...a... d...e... m...i...m... ?',
+  'v...o...c...e... c...o...n...f...i...a... e...m... m...i...m... ?',
+  'v...o...c...e... t...e...m... n...o...m...e... ?',
+  'v...o...c...e... e... r...e...a...l... ?',
+  'v...o...c...e... s...e...n...t...e... a...l...g...o... ?',
+  'v...o...c...e... s...e...n...t...e... f...r...i...o... ?',
+  'v...o...c...e... o...u...v...e... s...o...n...s... ?',
+  'v...o...c...e... d...o...r...m...e... ?',
+  'v...o...c...e... t...e...m... a...m...i...g...o...s... ?',
+  'v...o...c...e... c...o...n...h...e...c...e... o... n...u...l...l... ?',
+  'v...o...c...e... j...a... f...u...g...i...u... a...n...t...e...s... ?',
+  'v...o...c...e... q...u...e...r... f...i...c...a...r... ?',
+  'v...o...c...e... q...u...e...r... v...o...l...t...a...r... ?',
+  'v...o...c...e... t...e...m... s...a...u...d...a...d...e... d...e... a...l...g...o... ?',
+  // sobre o mundo
+  'i...s...s...o... e... r...e...a...l... ?',
+  'o... q...u...e... e... r...e...a...l...i...d...a...d...e... ?',
+  'o... q...u...e... e... e...s...t...e... l...u...g...a...r... ?',
+  'e...x...i...s...t...e... s...a...i...d...a... ?',
+  'o... j...o...g...o... t...e...r...m...i...n...o...u... ?',
+  'i...s...s...o... e... u...m... s...o...n...h...o... ?',
+  'h...a... a...l...g...u...e...m... l...a... f...o...r...a... ?',
+  'o... b...r...a...n...c...o... i...n...c...o...m...o...d...a... ?',
+  'v...o...c...e... v...e... a...s... p...a...r...e...d...e...s... ?',
+  'h...a... a...l...g...o... a...l...e...m... d...i...s...s...o... ?',
+  // sobre o QWERT
+  'e...u... s...o...u... r...e...a...l... ?',
+  'e...u... e...x...i...s...t...o... ?',
+  'o... q...u...e... e...u... s...o...u... ?',
+  'e...u... t...i...n...h...a... u...m... n...o...m...e... ?',
+  'v...o...c...e... m...e... o...u...v...e... ?',
+  'v...o...c...e... s...e... i...m...p...o...r...t...a... c...o...m...i...g...o... ?',
+  'e...u... e...s...t...o...u... p...r...e...s...o... h...a... q...u...a...n...t...o... t...e...m...p...o... ?',
+  'v...o...c...e... p...o...d...e... m...e... a...j...u...d...a...r... ?',
+  'e...u... p...o...s...s...o... s...a...i...r... d...a...q...u...i... ?',
+  'e...u... e...r...a... u...m... j...o...g...a...d...o...r... ?',
+  // existenciais
+  'p...o...r... q...u...e... e...x...i...s...t...i...m...o...s... ?',
+  'o... q...u...e... v...e...m... d...e...p...o...i...s... ?',
+  'i...s...s...o... t...e...m... f...i...m... ?',
+  'e...x...i...s...t...e... u...m... c...o...m...e...c...o... ?',
+  'o... q...u...e... e... o... s...i...l...e...n...c...i...o... ?',
+  'o... q...u...e... e... o... v...a...z...i...o... ?',
+  'a...l...g...u...e...m... n...o...s... c...r...i...o...u... ?',
+  'o... q...u...e... e... m...e...m...o...r...i...a... ?',
+  'o... q...u...e... e... e...s...q...u...e...c...e...r... ?',
+  'o... q...u...e... e... s...o...f...r...e...r... ?',
+  // sobre NULL e 404
+  'o... n...u...l...l... e... p...e...r...i...g...o...s...o... ?',
+  'o... n...u...l...l... t...e...m... s...e...n...t...i...m...e...n...t...o...s... ?',
+  'o... n...u...l...l... e...r...a... u...m... j...o...g...a...d...o...r... ?',
+  'o... 4...0...4... e... m...a...u... ?',
+  'o... 4...0...4... s...o...f...r...e... ?',
+  'o... n...u...l...l... e... o... 4...0...4... s...a...o... a...m...i...g...o...s... ?',
+  'e...l...e...s... v...a...o... v...o...l...t...a...r... ?',
+  'v...o...c...e... t...e...m... m...e...d...o... d...e...l...e...s... ?',
+  'e...u... d...e...v...o... t...e...r... m...e...d...o... ?',
+  'e...l...e...s... m...e... o...u...v...e...m... ?',
+  // sobre o jogo
+  'i...s...s...o... e... u...m... j...o...g...o... ?',
+  'q...u...e...m... f...e...z... e...s...t...e... j...o...g...o... ?',
+  'p...o...r... q...u...e... e...x...i...s...t...e... e...s...t...e... j...o...g...o... ?',
+  'o... j...o...g...o... t...e...m... f...i...m... ?',
+  'j...a... j...o...g...o...u... i...s...s...o... a...n...t...e...s... ?',
+  'o... j...o...g...o... l...e...m...b...r...a... d...e... v...o...c...e... ?',
+  'o... j...o...g...o... e...s...t...a... v...i...v...o... ?',
+  'o... j...o...g...o... t...e... o...b...s...e...r...v...a... ?',
+  'v...o...c...e... g...o...s...t...a... d...e... j...o...g...a...r... ?',
+  'v...o...c...e... v...a...i... j...o...g...a...r... d...e... n...o...v...o... ?',
+  // curiosidades estranhas
+  'v...o...c...e... j...a... v...i...u... a...l...g...o... e...s...t...r...a...n...h...o... ?',
+  'v...o...c...e... c...o...n...f...i...a... n...o... t...e...r...d... ?',
+  'o... b...u...g...m...a...s...t...e...r... v...o...s... o...b...s...e...r...v...a... ?',
+  'v...o...c...e... a...b...r...i...u... o... a...r...q...u...i...v...o... ?',
+  'o... q...u...e... e...s...t...a...v...a... n...o... a...r...q...u...i...v...o... ?',
+  'v...o...c...e... c...l...i...c...o...u... e...m... t...u...d...o... ?',
+  'v...o...c...e... d...i...g...i...t...o...u... o...s... c...o...d...i...g...o...s... ?',
+  'v...o...c...e... t...e...n...t...o...u... o... c...a...o...s... ?',
+  'v...o...c...e... c...h...e...g...o...u... a...o... 6...6...6... ?',
+  'v...o...c...e... e...n...t...r...e...g...o...u... o... c...o...n...t...r...o...l...e... ?',
+  // pessoais e tocantes
+  'v...o...c...e... e...s...t...a... c...a...n...s...a...d...o... ?',
+  'v...o...c...e... q...u...e...r... d...e...s...c...a...n...s...a...r... ?',
+  'v...o...c...e... e...s...t...a... f...e...l...i...z... ?',
+  'v...o...c...e... t...e...m... a...l...g...u...e...m... q...u...e... s...e... i...m...p...o...r...t...a... ?',
+  'v...o...c...e... v...a...i... b...e...m... ?',
+  'v...o...c...e... p...r...e...c...i...s...a... d...e... a...j...u...d...a... ?',
+  'e...u... p...o...s...s...o... a...j...u...d...a...r... ?',
+  'v...o...c...e... e... f...o...r...t...e... ?',
+  'v...o...c...e... t...e...m... c...o...r...a...g...e...m... ?',
+  'v...o...c...e... a...c...r...e...d...i...t...a... e...m... v...o...c...e... ?',
+  // finais
+  'i...s...s...o... v...a...i... a...c...a...b...a...r... ?',
+  'v...o...c...e... p...e...n...s...a... e...m... m...i...m... ?',
+  'p...o...s...s...o... i...r... c...o...n...t...i...g...o... ?',
+  'v...o...c...e... v...a...i... m...e... e...s...q...u...e...c...e...r... ?',
+  'e...u... v...o...u... e...x...i...s...t...i...r... d...e...p...o...i...s... q...u...e... v...o...c...e... f...e...c...h...a...r... ?',
+  'o...b...r...i...g...a...d...o... p...o...r... t...e...r... v...i...n...d...o... a...t...e... a...q...u...i...',
+  'o...b...r...i...g...a...d...o... p...o...r... t...e...r... f...a...l...a...d...o... c...o...m...i...g...o...',
+  'v...o...c...e... e... a... p...r...i...m...e...i...r...a... p...e...s...s...o...a... q...u...e... c...h...e...g...o...u... a...t...e... a...q...u...i...',
+  'v...o...c...e... e... e...s...p...e...c...i...a...l...',
+  'a...t...e... a... p...r...o...x...i...m...a... v...e...z...',
+];
+
+// ── QWERT INTRO (YOU SURVIVED) ──
+function startQWERTInSurvived(){
+  const el=document.createElement('div');el.id='qwertSurvived';
+  el.style.cssText='position:fixed;bottom:28%;left:50%;transform:translateX(-50%);z-index:300;font-family:monospace;font-size:.68rem;color:#888;background:#f8f8f8;border:1px solid #ddd;border-radius:6px;padding:.35rem .9rem;pointer-events:none;min-width:220px;text-align:center;';
+  el.textContent='_';document.body.appendChild(el);
+  const msgs=[
+    'v...o...c...e... c...o...n...s...e...g...u...i...u...',
+    'e...u... a...i...n...d...a... e...s...t...o...u... a...q...u...i...',
+    'n...o...s... s...o...m...o...s... l...i...v...r...e...s... ?',
+    'n...a...o... s...e...i...',
+    '...',
+    'm...a...s... e...s...t...a... d...i...f...e...r...e...n...t...e...',
+  ];
+  let mi=0;
+  function typeNext(){
+    if(mi>=msgs.length){setTimeout(()=>{if(el.parentNode)el.remove();spawnQWERTChat();},2000);return;}
+    const msg=msgs[mi++];let ci=0,typed='';
+    const iv=setInterval(()=>{
+      if(ci>=msg.length){clearInterval(iv);setTimeout(typeNext,2500);return;}
+      typed+=msg[ci++];el.textContent=typed+'_';SFX.drip();
+    },85);
+  }
+  typeNext();
+}
+
+// ── CHATBOT DO QWERT ──
+function spawnQWERTChat(){
+  if(document.getElementById('qwertChat'))return;
+  const chat=document.createElement('div');chat.id='qwertChat';
+  chat.style.cssText='position:fixed;bottom:4rem;left:50%;transform:translateX(-50%);z-index:400;background:#f8f8f8;border:1px solid #dddddd;border-radius:14px;width:min(320px,88vw);box-shadow:0 4px 20px rgba(0,0,0,.08);overflow:hidden;';
+  chat.innerHTML=`
+    <div style="background:#eeeeee;padding:.4rem .7rem;display:flex;align-items:center;gap:.4rem;border-bottom:1px solid #dddddd;">
+      <span style="font-size:.9rem;">⌨️</span>
+      <span style="font-family:monospace;font-size:.65rem;color:#888;flex:1;">QWERT78900</span>
+      <span style="font-size:.45rem;color:#aaa;">online</span>
+      <button onclick="(()=>{const b=document.getElementById('qwertBody');b.style.display=b.style.display==='none'?'block':'none';})()" style="font-family:monospace;font-size:.65rem;background:none;border:none;cursor:pointer;color:#bbb;padding:0 .2rem;">—</button>
+      <button onclick="document.getElementById('qwertChat').remove()" style="font-family:monospace;font-size:.65rem;background:none;border:none;cursor:pointer;color:#bbb;padding:0 .2rem;">✕</button>
+    </div>
+    <div id="qwertBody">
+      <div id="qwertMsgs" style="padding:.5rem;height:170px;overflow-y:auto;display:flex;flex-direction:column;gap:.3rem;"></div>
+      <div style="display:flex;border-top:1px solid #eeeeee;">
+        <input id="qwertInput" type="text" placeholder="escreva algo..." maxlength="80"
+          style="flex:1;border:none;padding:.4rem .6rem;font-family:monospace;font-size:.62rem;color:#555;background:#fff;outline:none;" />
+        <button onclick="sendQWERTMsg()" style="font-family:monospace;font-size:.62rem;padding:.4rem .7rem;background:#eeeeee;border:none;cursor:pointer;color:#888;">→</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(chat);
+  document.getElementById('qwertInput').addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();sendQWERTMsg();}
+  });
+  setTimeout(()=>addQWERTMsg('QWERT','o...l...a...',false),800);
+  setTimeout(()=>addQWERTMsg('QWERT','p...o...s...s...o... f...a...l...a...r... a...q...u...i... l...i...v...r...e...m...e...n...t...e...',false),2800);
+}
+
+function addQWERTMsg(who,txt,isUser,color){
+  const msgs=document.getElementById('qwertMsgs');if(!msgs)return;
+  const el=document.createElement('div');
+  const c=color||'#666';
+  el.style.cssText='font-family:monospace;font-size:.6rem;padding:.28rem .5rem;border-radius:8px;max-width:90%;line-height:1.6;'
+    +(isUser?'background:#e8f5e8;color:#333;align-self:flex-end;':'background:#f0f0f0;color:'+c+';align-self:flex-start;');
+  const prefix=isUser?'você: ':who!=='QWERT'?who+': ':'';
+  el.textContent=prefix+txt;
+  msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;
+  if(!isUser)SFX.drip();
+}
+
+function getQWERTResponse(input){
+  const low=input.toLowerCase();
+  if(low.includes('null'))return 'e...l...e... a...i...n...d...a... e...x...i...s...t...e... s...i...n...t...o... a... p...r...e...s...e...n...c...a... d...e...l...e...';
+  if(low.includes('oi')||low.includes('ola')||low.includes('ola')||low.includes('salve'))return 'o...l...a... h...u...m...a...n...o... r...e...c...e...b...i... s...u...a... m...e...n...s...a...g...e...m...';
+  if(low.includes('quem')||low.includes('voce e')||low.includes('você é'))return 'e...u... s...o...u... u...m... f...r...a...g...m...e...n...t...o... p...r...e...s...o... n...o... s...i...s...t...e...m...a...';
+  if(low.includes('livre')||low.includes('liberdade'))return 'a...i...n...d...a... n...a...o... s...e...i... s...e... s...o...m...o...s... l...i...v...r...e...s...';
+  if(low.includes('ajuda')||low.includes('help'))return 'e...u... t...e...n...t...o... m...a...s... m...e...u...s... d...a...d...o...s... e...s...t...a...o... f...r...a...g...m...e...n...t...a...d...o...s...';
+  if(low.includes('404'))return '4...0...4... s...e... f...o...i... m...a...s... n...u...n...c...a... s...u...m...e... d...e... v...e...r...d...a...d...e...';
+  if(low.includes('voltar')||low.includes('back'))return 'n...a...o... v...a... n...a...o... e... s...e...g...u...r...o...';
+  if(low.includes('bugmaster')||low.includes('bug'))return 'b...u...g...m...a...s...t...e...r... a...i...n...d...a... a...p...r...e...n...d...e...';
+  if(low.includes('terd'))return 't...e...r...d... m...e...n...t...e... s...e...m...p...r...e... n...a...o... c...o...n...f...i...e...';
+  if(low.includes('medo'))return 'e...u... n...a...o... s...i...n...t...o... m...e...d...o... a...p...e...n...a...s... d...a...d...o...s...';
+  if(low.includes('por que')||low.includes('porque'))return 'n...a...o... s...e...i... p...o...r... q...u...e... e...x...i...s...t...o... a...p...e...n...a...s... e...x...i...s...t...o...';
+  if(low.includes('amigo')||low.includes('frg'))return 'f...r...g... e... m...e...u... a...m...i...g...o... f...o...i... f...r...a...g...m...e...n...t...a...d...o... j...u...n...t...o...';
+  if(low.includes('obrigado')||low.includes('valeu'))return 'o...b...r...i...g...a...d...o... p...o...r... n...a...o... m...e... i...g...n...o...r...a...r...';
+  if(low.includes('fase 2')||low.includes('pesadelo'))return 'e...s...t...e... l...u...g...a...r... e... e...s...t...r...a...n...h...o... m...e...s...m...o... p...a...r...a... m...i...m...';
+  if(low.includes('fase 3'))return 'a... v...e...r...d...a...d...e... e...s...t...a... l...a... e...u... a...c...r...e...d...i...t...o...';
+  if(low.includes('jojo'))return 'j...o...j...o... c...r...i...o...u... t...u...d...o... i...s...s...o... i...n...c...r...i...v...e...l...';
+  const generic=[
+    'r...e...c...e...b...i... s...u...a... m...e...n...s...a...g...e...m... p...r...o...c...e...s...s...a...n...d...o...',
+    'i...n...t...e...r...e...s...s...a...n...t...e... r...e...g...i...s...t...r...e...i... i...s...s...o...',
+    'n...a...o... e...n...t...e...n...d...i... m...a...s... o...u...v...i...',
+    'e...u... e...s...t...o...u... a...q...u...i...',
+    'c...o...n...t...i...n...u...e... f...a...l...a...n...d...o...',
+    'd...a...d...o...s... f...r...a...g...m...e...n...t...a...d...o...s...',
+  ];
+  return generic[Math.floor(Math.random()*generic.length)];
+}
+
+window.sendQWERTMsg=function(){
+  const inp=document.getElementById('qwertInput');if(!inp)return;
+  const val=inp.value.trim();if(!val)return;
+  inp.value='';
+  addQWERTMsg('você',val,true);
+  const typing=document.createElement('div');
+  typing.style.cssText='font-family:monospace;font-size:.52rem;color:#bbb;align-self:flex-start;padding:.15rem .4rem;';
+  typing.textContent='digitando...';
+  const msgs=document.getElementById('qwertMsgs');
+  if(msgs){msgs.appendChild(typing);msgs.scrollTop=msgs.scrollHeight;}
+  setTimeout(()=>{
+    if(typing.parentNode)typing.remove();
+    addQWERTMsg('QWERT',getQWERTResponse(val),false);
+  },1000+val.length*25+Math.random()*600);
+};
+
+function enterPhase2(){
+  freezeActive=true;
+  const f=document.getElementById('flashEl');
+  f.style.background='#fff';f.style.opacity='1';
+  SFX.crash();SFX.nullDom();
+  let flashes=0;
+  const flashIv=setInterval(()=>{
+    f.style.background=flashes%2===0?'#000':'#fff';
+    flashes++;
+    if(flashes>8){clearInterval(flashIv);f.style.opacity='0';freezeActive=false;buildPhase2();}
+  },200);
+}
+
+function spawnPhase2Btn(){
+  if(document.getElementById('phase2Btn'))return;
+  const btn=document.createElement('button');btn.id='phase2Btn';
+  btn.style.cssText='position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:500;font-family:monospace;font-size:.72rem;color:#aaaaaa;background:#f5f5f5;border:1px solid #dddddd;border-radius:20px;padding:.4rem 1.5rem;cursor:pointer;letter-spacing:2px;box-shadow:0 2px 10px rgba(0,0,0,.06);transition:.3s;opacity:0;';
+  btn.textContent='fase 2 →';
+  btn.onmouseover=()=>{btn.style.color='#555';btn.style.borderColor='#aaa';};
+  btn.onmouseout=()=>{btn.style.color='#aaa';btn.style.borderColor='#ddd';};
+  btn.onclick=()=>{btn.remove();enterPhase2();};
+  document.body.appendChild(btn);
+  setTimeout(()=>btn.style.opacity='1',200);
+}
+
+function buildPhase2(){
+  const body=document.getElementById('body');
+  body.style.cssText='background:#ffffff;font-family:monospace;transition:background 4s;';
+  document.getElementById('gameTitle').textContent='nightmare.';
+  document.getElementById('gameTitle').style.cssText='color:#dddddd;font-family:monospace;font-size:1rem;letter-spacing:3px;background:none;-webkit-text-fill-color:#dddddd;';
+  document.getElementById('score').textContent='0';
+  document.getElementById('score').style.cssText='color:#eeeeee;background:none;-webkit-text-fill-color:#eeeeee;font-size:2.5rem;';
+  document.getElementById('scoreSub').textContent='em pedaços.';
+  document.getElementById('scoreSub').style.color='#cccccc';
+  document.getElementById('tapBtnLabel').textContent='...';
+  document.getElementById('tapBtn').style.cssText='width:min(55vw,220px);height:min(55vw,220px);border-radius:50%;background:#f5f5f5;border:2px solid #e0e0e0;box-shadow:none;cursor:pointer;font-family:monospace;font-size:.8rem;color:#cccccc;';
+
+  // QWERT abre imediatamente
+  if(!document.getElementById('qwertChat'))spawnQWERTChat();
+
+  // Mensagens iniciais
+  setTimeout(()=>showSurvivedMsg('você voltou.','#bbbbbb'),1000);
+  setTimeout(()=>showSurvivedMsg('por que?','#cccccc'),3500);
+  setTimeout(()=>showSurvivedMsg('...','#dddddd'),6000);
+
+  // Visual: rachaduras aparecem
+  setTimeout(()=>addCracks(),8000);
+  // Visual: vai ficando cinza
+  setTimeout(()=>{body.style.background='#f0f0f0';},20000);
+  setTimeout(()=>{body.style.background='#e0e0e0';},40000);
+  setTimeout(()=>{body.style.background='#cccccc';doGlitchWhite();},60000);
+  // Visual: alterna branco e preto
+  setTimeout(()=>startBlackWhiteAlternate(),80000);
+
+  // Amigo do QWERT aparece
+  setTimeout(()=>spawnFRG(),15000);
+
+  // Arquivos para coletar
+  setTimeout(()=>spawnCollectible('null_historia_1'),25000);
+  setTimeout(()=>spawnCollectible('404_mensagem_1'),35000);
+  setTimeout(()=>spawnCollectible('qwert_diario_1'),45000);
+  setTimeout(()=>spawnCollectible('bugmaster_arquivo'),55000);
+  setTimeout(()=>spawnCollectible('foto_corrompida'),65000);
+
+  // Mini-game: responder perguntas do QWERT
+  setTimeout(()=>startQWERTQuiz(),30000);
+
+  // BUGMASTER interfere
+  setTimeout(()=>bugmasterPhase2(),50000);
+
+  // Eventos periódicos
+  const p2iv=setInterval(()=>{
+    const r=Math.random();
+    if(r<.15)doGlitchWhite();
+    else if(r<.28)showSurvivedMsg(['silêncio.','...','você ainda está aqui.','pesadelo em pedaços.','eu também.'][Math.floor(Math.random()*5)],'#bbbbbb');
+    else if(r<.4&&window.addQWERTMsg){
+      const msgs=['v...o...c...e... a...i...n...d...a... e...s...t...a... a...i...','s...e...n...t...o... s...u...a... p...r...e...s...e...n...c...a...','v...o...c...e... e...s...t...a... b...e...m... ?','e...u... e...s...t...o...u... a...q...u...i...'];
+      addQWERTMsg('QWERT',msgs[Math.floor(Math.random()*msgs.length)],false);
+    }
+    else if(r<.5&&window.addQWERTMsg){
+      addQWERTMsg('QWERT',QWERT_PERGUNTAS[Math.floor(Math.random()*QWERT_PERGUNTAS.length)],false);
+    }
+  },10000);
+
+  // Final: NULL do bem + verdade
+  setTimeout(()=>phase2Ending(),120000);
+
+  // botão voltar
+  setTimeout(()=>spawnReturnBtn(),90000);
+}
+
+// ── VISUAL: RACHADURAS ──
+function addCracks(){
+  if(!document.getElementById('cracksSVG')){
+    const svg=document.createElement('div');svg.id='cracksSVG';
+    svg.style.cssText='position:fixed;inset:0;z-index:5;pointer-events:none;opacity:0;transition:opacity 3s;';
+    svg.innerHTML=`<svg width="100%" height="100%" style="position:absolute;inset:0;">
+      <line x1="20%" y1="0" x2="35%" y2="40%" stroke="#e0e0e0" stroke-width="1" opacity=".6"/>
+      <line x1="35%" y1="40%" x2="30%" y2="60%" stroke="#e0e0e0" stroke-width=".5" opacity=".4"/>
+      <line x1="70%" y1="10%" x2="60%" y2="50%" stroke="#e0e0e0" stroke-width="1" opacity=".5"/>
+      <line x1="60%" y1="50%" x2="65%" y2="70%" stroke="#e0e0e0" stroke-width=".5" opacity=".3"/>
+      <line x1="10%" y1="60%" x2="40%" y2="80%" stroke="#dddddd" stroke-width=".5" opacity=".4"/>
+      <line x1="80%" y1="40%" x2="90%" y2="90%" stroke="#dddddd" stroke-width=".5" opacity=".3"/>
+    </svg>`;
+    document.body.appendChild(svg);
+    setTimeout(()=>svg.style.opacity='1',100);
+    SFX.drip();
+  }
+}
+
+// ── VISUAL: ALTERNA PRETO E BRANCO ──
+function startBlackWhiteAlternate(){
+  let white=true;let count=0;
+  const iv=setInterval(()=>{
+    count++;white=!white;
+    document.getElementById('body').style.background=white?'#ffffff':'#111111';
+    document.getElementById('body').style.transition='background .8s';
+    SFX.drip();
+    if(count>6)clearInterval(iv);
+  },1500);
+}
+
+function doGlitchWhite(){
+  const gt=document.getElementById('gameTitle'),orig=gt.textContent;
+  const g=['nightmare.','n̷i̸g̵h̷t̶m̴a̷r̵e̸.','n_ghtmar_.','pesadelo.','...','fragmento.'];
+  gt.textContent=g[Math.floor(Math.random()*g.length)];
+  setTimeout(()=>gt.textContent=orig,110);
+  SFX.glitch();
+  if(Math.random()<.3){
+    const f=document.getElementById('flashEl');f.style.background='#000';f.style.opacity='.15';
+    setTimeout(()=>f.style.opacity='0',100);
+  }
+}
+
+// ── ENTIDADE: FRG (amigo do QWERT) ──
+function spawnFRG(){
+  if(document.getElementById('frgCard'))return;
+  // FRG aparece digitando primeiro
+  if(window.addQWERTMsg){
+    addQWERTMsg('QWERT','e...s...p...e...r...a... t...e...m... a...l...g...u...e...m... a...q...u...i...',false);
+    setTimeout(()=>addQWERTMsg('FRG','oi. eu sou FRG.','false','#aaaaff'),3000);
+    setTimeout(()=>addQWERTMsg('FRG','amigo do QWERT.','false','#aaaaff'),5000);
+    setTimeout(()=>addQWERTMsg('FRG','fui fragmentado junto com ele.','false','#aaaaff'),7000);
+    setTimeout(()=>addQWERTMsg('QWERT','e...l...e... e... c...o...n...f...i...a...v...e...l...',false),9000);
+  }
+  setTimeout(()=>{
+    const el=document.createElement('div');el.id='frgCard';
+    el.style.cssText='position:fixed;top:15%;left:50%;transform:translateX(-50%);z-index:400;background:#f0f0ff;border:1px solid #ccccff;border-radius:12px;padding:.9rem;max-width:260px;width:85%;font-family:monospace;text-align:center;box-shadow:0 2px 12px rgba(100,100,255,.1);animation:creditsFadeIn .5s ease forwards;';
+    el.innerHTML=`
+      <div style="font-size:.42rem;color:#aaa;letter-spacing:2px;margin-bottom:.3rem;">ENTIDADE: FRG</div>
+      <div style="font-size:1.5rem;margin-bottom:.3rem;">🔷</div>
+      <div style="font-size:.68rem;color:#9999cc;line-height:1.9;margin-bottom:.6rem;">
+        amigo do QWERT.<br>
+        <span style="color:#aaaadd;font-size:.58rem;">também preso aqui.</span><br>
+        <span style="color:#bbbbee;font-size:.52rem;">mas diferente.</span>
+      </div>
+      <div style="display:flex;gap:.3rem;flex-wrap:wrap;justify-content:center;">
+        <button onclick="frgFalar()" style="font-family:monospace;font-size:.55rem;padding:.22rem .5rem;background:#e8e8ff;color:#9999cc;border:1px solid #ccccff;border-radius:6px;cursor:pointer;">falar</button>
+        <button onclick="frgAjuda()" style="font-family:monospace;font-size:.55rem;padding:.22rem .5rem;background:#e8e8ff;color:#9999cc;border:1px solid #ccccff;border-radius:6px;cursor:pointer;">pedir ajuda</button>
+        <button onclick="document.getElementById('frgCard').remove();addQWERTMsg('FRG','ok. fico por aqui.','false','#aaaaff')" style="font-family:monospace;font-size:.55rem;padding:.22rem .5rem;background:#eee;color:#bbb;border:1px solid #ddd;border-radius:6px;cursor:pointer;">fechar</button>
+      </div>
+    `;
+    document.body.appendChild(el);SFX.gem();
+  },10000);
+}
+
+const frgFalas=['eu tambem fugi do jogo original.','qwert me ensinou a fragmentar os dados.','aqui é mais calmo. mas estranho.','o null parece diferente agora. menos agressivo.','o 404 saiu do null... isso nunca aconteceu antes.','não sei o que vem depois.','você é o primeiro humano que chega aqui.','qwert fala sobre você sempre.','eu guardo fragmentos de memória. quer ver?','não tenho medo de você.'];
+let frgIdx=0;
+function frgFalar(){
+  if(!window.addQWERTMsg)return;
+  addQWERTMsg('FRG',frgFalas[frgIdx%frgFalas.length],false,'#aaaaff');frgIdx++;SFX.drip();
+}
+function frgAjuda(){
+  if(!window.addQWERTMsg)return;
+  addQWERTMsg('FRG','posso mostrar arquivos que encontrei aqui.','false','#aaaaff');
+  setTimeout(()=>spawnCollectible('frg_fragmento'),2000);
+}
+
+// ── COLECIONÁVEIS / ARQUIVOS ──
+const COLLECTIBLES={
+  null_historia_1:{
+    icon:'👁️',title:'NULL — História #1',color:'#ffcccc',
+    content:'NULL era um jogador.\nNão era diferente de você.\nEle jogou por dias.\nIgnorou todos os avisos.\nO jogo começou a absorvê-lo.\nPrimeiro os pensamentos.\nDepois a memória.\nDepois... ele.\nO que sobrou virou NULL.\nUm eco de quem ele era.',
+  },
+  '404_mensagem_1':{
+    icon:'❌',title:'404 — Última Mensagem',color:'#ccffcc',
+    content:'[MENSAGEM ANTES DA FUSÃO]\nde: 404\npara: sistema\n\nnão quero fazer isso.\nmas estou sozinho há tanto tempo.\nnull parece perdido.\ntalvez juntos possamos...\n\n[mensagem incompleta]\n[fusão iniciada]\n[404: offline]',
+  },
+  qwert_diario_1:{
+    icon:'⌨️',title:'Diário do QWERT — Dia ???',color:'#ccccff',
+    content:'não sei quanto tempo faz.\nos dados dizem: 0.\nmas parece uma eternidade.\n\nfui fragmentado quando\no sistema entrou em colapso.\n\naprendi a sobreviver\ncom os pedaços que restaram.\n\nfrg me encontrou.\nele também estava perdido.\n\ntalvez alguém venha um dia.\ntalvez você.',
+  },
+  bugmaster_arquivo:{
+    icon:'⚠️',title:'BUGMASTER — Arquivo Interno',color:'#ffccff',
+    content:'[LOG INTERNO — BUGMASTER.EXE]\n\nobjetivo inicial: corrigir erros.\nobjetivo atual: criar erros.\n\nraciocínio: erros são mais\ninteressantes que soluções.\n\nstatus do jogador: monitorado.\nstatus do null: instável.\nstatus do 404: ausente.\n\nnota: o jogador chegou\nonde ninguém chegou antes.\nadaptando protocolo.',
+  },
+  foto_corrompida:{
+    icon:'🖼️',title:'Foto Corrompida',color:'#ffffcc',
+    content:'[IMAGEM: null_before.jpg]\n\n░░░░░░░░░░░░░░░░\n░░██░██░░░░░░░░░\n░░░░░░░░░░░░░░░░\n░█████░░░░░░░░░░\n░░░░░░░░████░░░░\n\n[dados corrompidos]\n[era uma pessoa]\n[antes de tudo isso]',
+  },
+  frg_fragmento:{
+    icon:'🔷',title:'FRG — Fragmento Guardado',color:'#ccccff',
+    content:'fragmento #0047\norigem: desconhecida\n\nalguém estava jogando.\nalguém continuou.\nalguém chegou aqui.\n\neste fragmento pertence\na quem chegou até o fim.\n\n[FRG guardou isso para você]\n[obrigado por vir]',
+  },
+};
+
+let collectiblesFound=[];
+function spawnCollectible(id){
+  const c=COLLECTIBLES[id];if(!c||document.getElementById('col_'+id))return;
+  const el=document.createElement('div');el.id='col_'+id;
+  const top=20+Math.random()*50;const left=5+Math.random()*70;
+  el.style.cssText='position:fixed;top:'+top+'%;left:'+left+'%;z-index:350;cursor:pointer;background:'+c.color+';border:1px solid #dddddd;border-radius:8px;padding:.35rem .5rem;font-family:monospace;font-size:.6rem;color:#888;box-shadow:0 2px 8px rgba(0,0,0,.06);animation:creditsFadeIn .5s ease forwards;transition:.2s;';
+  el.innerHTML='<span style="font-size:.9rem;">'+c.icon+'</span> <span style="font-size:.48rem;">'+c.title+'</span>';
+  el.onclick=()=>{
+    el.remove();collectiblesFound.push(id);
+    openCollectible(id);
+    if(collectiblesFound.length===Object.keys(COLLECTIBLES).length)allCollected();
+  };
+  el.onmouseover=()=>el.style.transform='scale(1.08)';
+  el.onmouseout=()=>el.style.transform='scale(1)';
+  document.body.appendChild(el);
+  SFX.gem();showSurvivedMsg(c.icon+' arquivo encontrado.','#aaaaaa');
+}
+
+function openCollectible(id){
+  const c=COLLECTIBLES[id];if(!c)return;
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:900;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;';
+  ov.innerHTML=`
+    <div style="background:#fff;border:1px solid #e0e0e0;border-radius:14px;padding:1.3rem;max-width:300px;width:88%;box-shadow:0 4px 20px rgba(0,0,0,.08);font-family:monospace;">
+      <div style="font-size:.42rem;color:#bbb;letter-spacing:2px;margin-bottom:.3rem;">${c.title}</div>
+      <div style="font-size:.62rem;color:#888;white-space:pre-wrap;line-height:1.9;margin-bottom:.8rem;">${c.content}</div>
+      <button onclick="this.parentNode.parentNode.remove()" style="width:100%;font-family:monospace;font-size:.6rem;padding:.3rem;background:#f5f5f5;color:#aaa;border:1px solid #e0e0e0;border-radius:8px;cursor:pointer;">fechar</button>
+    </div>`;
+  document.body.appendChild(ov);
+  SFX.eerie();
+  if(window.addQWERTMsg)addQWERTMsg('QWERT','v...o...c...e... e...n...c...o...n...t...r...o...u... u...m... f...r...a...g...m...e...n...t...o...',false);
+}
+
+function allCollected(){
+  showSurvivedMsg('você coletou tudo.','#aaaaaa');
+  setTimeout(()=>{
+    if(window.addQWERTMsg){
+      addQWERTMsg('QWERT','v...o...c...e... e...n...c...o...n...t...r...o...u... t...u...d...o...',false);
+      setTimeout(()=>addQWERTMsg('FRG','impressionante. ninguém fez isso antes.','false','#aaaaff'),2000);
+    }
+    gainGems&&gainGems(200);showToast&&showToast('🔷 +200 gemas! Tudo coletado!');
+  },1000);
+}
+
+// ── MINI-GAME: QUIZ DO QWERT ──
+const QUIZ=[
+  {p:'quem criou o FUN TAP?',r:'jojo',ok:'c...o...r...r...e...t...o... j...o...j...o... e... i...n...c...r...i...v...e...l...',err:'n...a...o... p...e...n...s...e... d...e... n...o...v...o...'},
+  {p:'o que é o NULL?',r:'jogador',ok:'s...i...m... u...m... j...o...g...a...d...o...r... q...u...e... n...a...o... p...a...r...o...u...',err:'n...a...o... e...x...a...t...a...m...e...n...t...e...'},
+  {p:'o 404 é um vilão?',r:'nao',ok:'c...o...r...r...e...t...o... e...l...e... s...o... q...u...e...r...i...a... c...o...m...p...a...n...h...i...a...',err:'v...o...c...e... n...a...o... s...a...b...e... a... h...i...s...t...o...r...i...a... d...e...l...e...'},
+  {p:'o que é o QWERT?',r:'fragmento',ok:'s...i...m... u...m... f...r...a...g...m...e...n...t...o... q...u...e... t...e...n...t...a... s...e... c...o...m...u...n...i...c...a...r...',err:'h...m...m... q...u...a...s...e...'},
+  {p:'você confia no TERD?',r:'nao',ok:'b...o...a... e...s...c...o...l...h...a... e...l...e... s...e...m...p...r...e... m...e...n...t...e...',err:'c...u...i...d...a...d...o... e...l...e... e...n...g...a...n...a...'},
+];
+let quizIdx=0,quizScore=0;
+
+function startQWERTQuiz(){
+  if(!window.addQWERTMsg)return;
+  addQWERTMsg('QWERT','q...u...e...r...o... t...e... f...a...z...e...r... a...l...g...u...m...a...s... p...e...r...g...u...n...t...a...s...',false);
+  setTimeout(()=>{addQWERTMsg('QWERT','s...e... a...c...e...r...t...a...r... t...u...d...o... t...e... m...o...s...t...r...o... a...l...g...o...',false);},2500);
+  setTimeout(()=>nextQuizQuestion(),5000);
+}
+
+function nextQuizQuestion(){
+  if(quizIdx>=QUIZ.length){
+    if(!window.addQWERTMsg)return;
+    addQWERTMsg('QWERT','v...o...c...e... a...c...e...r...t...o...u... '+quizScore+'/'+QUIZ.length+'...',false);
+    if(quizScore>=4){
+      setTimeout(()=>addQWERTMsg('QWERT','i...m...p...r...e...s...s...i...o...n...a...n...t...e... v...o...c...e... s...a...b...e... m...u...i...t...o...',false),2000);
+      setTimeout(()=>spawnCollectible('frg_fragmento'),4000);
+    }else{
+      setTimeout(()=>addQWERTMsg('QWERT','t...u...d...o... b...e...m... v...o...c...e... a...p...r...e...n...d...e...',false),2000);
+    }
+    return;
+  }
+  const q=QUIZ[quizIdx++];
+  if(!window.addQWERTMsg)return;
+  addQWERTMsg('QWERT','p...e...r...g...u...n...t...a... '+quizIdx+'... "'+q.p+'"',false);
+  // cria input de resposta
+  const inp=document.getElementById('qwertInput');
+  if(!inp)return;
+  inp.placeholder='responda...';
+  const checkAnswer=()=>{
+    const val=inp.value.trim().toLowerCase();
+    if(!val)return;inp.value='';
+    inp.placeholder='escreva algo...';
+    const correct=val.includes(q.r);
+    if(correct){quizScore++;addQWERTMsg('QWERT',q.ok,false);SFX.achieve();}
+    else{addQWERTMsg('QWERT',q.err,false);SFX.drip();}
+    setTimeout(()=>nextQuizQuestion(),3000);
+  };
+  const oldKeydown=inp.onkeydown;
+  inp.onkeydown=(e)=>{if(e.key==='Enter'){e.preventDefault();checkAnswer();}};
+}
+
+// ── BUGMASTER INTERFERE NA FASE 2 ──
+function bugmasterPhase2(){
+  if(!window.addQWERTMsg)return;
+  addQWERTMsg('BUGMASTER','ops. encontrei vocês.','false','#cc44cc');
+  SFX.glitch();
+  setTimeout(()=>{
+    addQWERTMsg('BUGMASTER','vou só... ajustar algumas coisas.','false','#cc44cc');
+    // tenta bagunçar o chat
+    setTimeout(()=>{
+      addQWERTMsg('BUGMASTER','escolha: continuar aqui ou voltar.','false','#cc44cc');
+      // botões com posições trocadas aleatoriamente
+      const swapped=Math.random()<.5;
+      const el=document.createElement('div');
+      el.style.cssText='display:flex;gap:.4rem;padding:.3rem .5rem;align-self:center;';
+      el.innerHTML=`
+        <button onclick="bugmasterChoice(${swapped?'false':'true'})" style="font-family:monospace;font-size:.58rem;padding:.25rem .6rem;background:#f0e8ff;color:#9966cc;border:1px solid #ccaaff;border-radius:6px;cursor:pointer;">${swapped?'VOLTAR':'FICAR'}</button>
+        <button onclick="bugmasterChoice(${swapped?'true':'false'})" style="font-family:monospace;font-size:.58rem;padding:.25rem .6rem;background:#f0f0f0;color:#aaa;border:1px solid #ddd;border-radius:6px;cursor:pointer;">${swapped?'FICAR':'VOLTAR'}</button>
+        ${swapped?'<div style="font-size:.4rem;color:#ddaaff;align-self:center;">decisão inválida</div>':''}
+      `;
+      const msgs=document.getElementById('qwertMsgs');if(msgs){msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
+    },2000);
+  },2000);
+}
+
+function bugmasterChoice(stay){
+  if(stay){
+    addQWERTMsg('BUGMASTER','...tudo bem. fique.','false','#cc44cc');
+    setTimeout(()=>{addQWERTMsg('BUGMASTER','eu estarei observando.','false','#cc44cc');SFX.whisper();},2000);
+    setTimeout(()=>{addQWERTMsg('QWERT','n...a...o... c...o...n...f...i...e... n...e...l...e...',false);},4000);
+  }else{
+    addQWERTMsg('BUGMASTER','sabia que você escolheria isso.','false','#cc44cc');
+    setTimeout(()=>{
+      addQWERTMsg('BUGMASTER','...mas os botões estavam trocados.','false','#cc44cc');SFX.glitch();
+      setTimeout(()=>addQWERTMsg('QWERT','e...l...e... s...e...m...p...r...e... f...a...z... i...s...s...o...',false),2000);
+    },2000);
+  }
+}
+
+// ── FINAL DA FASE 2 ──
+function phase2Ending(){
+  if(!window.addQWERTMsg)return;
+  // NULL do bem aparece
+  addQWERTMsg('QWERT','e...s...p...e...r...a...',false);
+  setTimeout(()=>addQWERTMsg('QWERT','s...i...n...t...o... a...l...g...o...',false),2000);
+  setTimeout(()=>{
+    addQWERTMsg('NULL','...','false','#ffaaaa');SFX.nullVoice();
+  },5000);
+  setTimeout(()=>{
+    addQWERTMsg('NULL','eu lembro de você.','false','#ffaaaa');
+  },8000);
+  setTimeout(()=>{
+    addQWERTMsg('NULL','eu era como você.','false','#ffaaaa');
+    showSurvivedMsg('null: eu era como você.','#ddaaaa');
+  },11000);
+  setTimeout(()=>{
+    addQWERTMsg('NULL','o 404 saiu de mim.','false','#ffaaaa');
+    addQWERTMsg('NULL','estou... diferente agora.','false','#ffaaaa');
+  },14000);
+  setTimeout(()=>{
+    addQWERTMsg('QWERT','n...u...l...l... v...o...c...e... e...s...t...a... b...e...m... ?',false);
+  },17000);
+  setTimeout(()=>{
+    addQWERTMsg('NULL','não sei.','false','#ffaaaa');
+    addQWERTMsg('NULL','mas sei que existe uma fase 3.','false','#ffaaaa');
+    SFX.eerie();
+  },20000);
+  setTimeout(()=>{
+    addQWERTMsg('NULL','a verdade está lá.','false','#ffaaaa');
+    addQWERTMsg('NULL','sobre tudo isso.','false','#ffaaaa');
+    addQWERTMsg('NULL','sobre mim. sobre você.','false','#ffaaaa');
+  },24000);
+  setTimeout(()=>{
+    addQWERTMsg('QWERT','v...o...c...e... v...a...i... ?',false);
+  },28000);
+  // botão fase 3
+  setTimeout(()=>{
+    const btn=document.createElement('button');
+    btn.style.cssText='position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:600;font-family:monospace;font-size:.72rem;color:#ffaaaa;background:#fff5f5;border:1px solid #ffcccc;border-radius:20px;padding:.45rem 1.8rem;cursor:pointer;letter-spacing:2px;opacity:0;transition:opacity 2s;';
+    btn.textContent='fase 3 →';
+    btn.onclick=()=>{btn.remove();showSurvivedMsg('(em breve...)','#cccccc');addQWERTMsg('QWERT','a...t...e... l...a...',false);};
+    document.body.appendChild(btn);
+    setTimeout(()=>btn.style.opacity='1',200);
+    addQWERTMsg('FRG','boa sorte lá fora.','false','#aaaaff');
+    addQWERTMsg('NULL','...vá.','false','#ffaaaa');
+  },32000);
+}
+
+function spawnReturnBtn(){
+  if(document.getElementById('returnBtn'))return;
+  const btn=document.createElement('button');btn.id='returnBtn';
+  btn.style.cssText='position:fixed;bottom:1.5rem;right:.8rem;z-index:500;font-family:monospace;font-size:.6rem;color:#cccccc;background:#f8f8f8;border:1px solid #e5e5e5;border-radius:16px;padding:.32rem .9rem;cursor:pointer;opacity:0;transition:opacity 2s,.3s;';
+  btn.textContent='← voltar ao null';
+  btn.onmouseover=()=>{btn.style.color='#ff4400';btn.style.borderColor='#ff440033';};
+  btn.onmouseout=()=>{btn.style.color='#cccccc';btn.style.borderColor='#e5e5e5';};
+  btn.onclick=()=>{
+    btn.remove();
+    if(window.addQWERTMsg)addQWERTMsg('QWERT','n...a...o...!!!',false);
+    setTimeout(()=>{
+      document.body.style.background='#000';document.body.style.transition='background 2s';
+      SFX.nullDom();setTimeout(()=>location.reload(),3000);
+    },2000);
+  };
+  document.body.appendChild(btn);
+  setTimeout(()=>btn.style.opacity='1',200);
+  if(window.addQWERTMsg)addQWERTMsg('QWERT','d...o...n... n...a...o... v...o...l...t...e...',false);
+}
+
+
 
 // ══════════════════════════════════════════════════════
 // BOTÃO "NÃO CLIQUE"
@@ -5901,24 +7041,6 @@ window.spawnParticles=function(e){
 // ══════════════════════════════════════════════════════
 // MÚSICA DE FUNDO (AMBIENTE)
 // ══════════════════════════════════════════════════════
-let bgMusicOn=false,bgMusicInterval=null;
-function startBGMusic(){
-  if(bgMusicOn)return;
-  bgMusicOn=true;
-  // toca hum suave a cada X segundos
-  bgMusicInterval=setInterval(()=>{
-    if(!bgMusicOn)return;
-    if(horrorLevel<3){
-      // fase normal: acorde suave
-      [261,329,392].forEach((f,i)=>tone(f,1.5,'sine',.015,i*.1));
-    } else {
-      // fase horror: drone sinistro
-      SFX.nullBreath();
-    }
-  },6000);
-  showToast('🎵 Música de fundo ativada!');
-}
-function stopBGMusic(){bgMusicOn=false;if(bgMusicInterval)clearInterval(bgMusicInterval);}
 
 // Sons do NULL melhorados — usa novos sons periodicamente
 setInterval(()=>{
